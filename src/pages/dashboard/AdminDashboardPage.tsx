@@ -35,11 +35,11 @@ export function AdminDashboardPage() {
           <h1 className="text-3xl font-display font-bold">Verifikasi Pengrajin</h1>
           <p className="text-muted-foreground">Tinjau dan kelola permintaan pendaftaran pengrajin.</p>
         </div>
-        <Button variant="outline" size="icon" onClick={fetchArtisans} disabled={isLoading} className="rounded-xl">
+        <Button variant="outline" size="icon" onClick={fetchArtisans} disabled={isLoading} className="rounded-2xl">
           <RefreshCw className={cn("h-4 w-4", isLoading && "animate-spin")} />
         </Button>
       </div>
-      <Card className="rounded-2xl shadow-card border-none">
+      <Card className="rounded-3xl shadow-card border-none">
         <CardHeader>
           <CardTitle className="font-display">Permintaan Verifikasi</CardTitle>
           <CardDescription>Daftar semua pengrajin dan status verifikasi mereka.</CardDescription>

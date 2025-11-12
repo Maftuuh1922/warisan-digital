@@ -61,11 +61,11 @@ export function ArtisanDashboardPage() {
           <h1 className="text-3xl font-display font-bold">Koleksi Batik Saya</h1>
           <p className="text-muted-foreground">Kelola produk batik autentik Anda.</p>
         </div>
-        <Button onClick={handleAdd} className="rounded-xl">
+        <Button onClick={handleAdd} className="rounded-2xl">
           <PlusCircle className="mr-2 h-4 w-4" /> Tambah Batik Baru
         </Button>
       </div>
-      <Card className="rounded-2xl shadow-card border-none">
+      <Card className="rounded-3xl shadow-card border-none">
         <CardHeader>
           <CardTitle className="font-display">Produk Anda</CardTitle>
           <CardDescription>Daftar semua batik yang telah Anda daftarkan.</CardDescription>

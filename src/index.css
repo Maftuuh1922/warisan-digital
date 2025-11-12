@@ -30,7 +30,7 @@
     --border: 35 33% 82%; /* #E0D5C7 - light brown */
     --input: 35 33% 82%;
     --ring: var(--brand-accent);
-    --radius: 1rem; /* 16px */
+    --radius: 1.5rem; /* 24px */
   }
   .dark {
     /* Dark theme can be defined here later if needed */
@@ -57,5 +57,9 @@
   .batik-background {
     background-image: url('https://www.transparenttextures.com/patterns/batthern.png');
     background-color: hsl(var(--brand-primary));
+  }
+  .batik-texture-subtle {
+    background-image: url('https://www.transparenttextures.com/patterns/subtle-batik.png');
+    background-color: hsl(var(--background));
   }
 }

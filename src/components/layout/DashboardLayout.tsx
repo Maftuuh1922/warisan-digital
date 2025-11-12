@@ -46,7 +46,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             onClick={() => isMobile && setMobileMenuOpen(false)}
             className={({ isActive }) =>
               cn(
-                'flex items-center gap-3 rounded-xl px-3 py-2 text-muted-foreground transition-all hover:text-foreground hover:bg-muted',
+                'flex items-center gap-3 rounded-2xl px-3 py-2 text-muted-foreground transition-all hover:text-foreground hover:bg-muted',
                 isActive && 'bg-muted text-foreground font-medium'
               )
             }
@@ -57,7 +57,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         ))}
       </nav>
       <div className="mt-auto p-4 border-t">
-        <Button variant="ghost" className="w-full justify-start rounded-xl" onClick={handleLogout}>
+        <Button variant="ghost" className="w-full justify-start rounded-2xl" onClick={handleLogout}>
           <LogOut className="mr-2 h-4 w-4" />
           Logout
         </Button>
@@ -69,12 +69,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       <div className="hidden border-r bg-card md:block">
         <SidebarContent />
       </div>
-      <div className="flex flex-col bg-muted/40">
+      <div className="flex flex-col">
         <header className="flex h-20 items-center gap-4 border-b bg-card px-4 lg:px-6">
           <Button
             variant="outline"
             size="icon"
-            className="shrink-0 md:hidden rounded-xl"
+            className="shrink-0 md:hidden rounded-2xl"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             <Menu className="h-5 w-5" />
@@ -87,7 +87,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             Halo, <span className="text-foreground">{user?.name}</span>
           </div>
         </header>
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto batik-texture-subtle">
           {children}
         </main>
       </div>
@@ -101,7 +101,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             className="fixed inset-0 z-50 h-full w-full bg-card md:hidden"
           >
             <div className="absolute top-5 right-4">
-              <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)} className="rounded-xl">
+              <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)} className="rounded-2xl">
                 <X className="h-6 w-6" />
               </Button>
             </div>

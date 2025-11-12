@@ -69,12 +69,12 @@ export function AuthPage() {
         <div className="absolute inset-0 bg-gradient-to-t from-brand-primary via-brand-primary/80 to-brand-primary" />
         <div className="relative z-10 w-full max-w-md px-4">
           <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-card/80 backdrop-blur-sm rounded-xl p-1">
-              <TabsTrigger value="login" className="rounded-[10px]">Login</TabsTrigger>
-              <TabsTrigger value="register" className="rounded-[10px]">Daftar</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 bg-card/80 backdrop-blur-sm rounded-2xl p-1">
+              <TabsTrigger value="login" className="rounded-xl">Login</TabsTrigger>
+              <TabsTrigger value="register" className="rounded-xl">Daftar</TabsTrigger>
             </TabsList>
             <TabsContent value="login">
-              <Card className="rounded-2xl shadow-card border-none">
+              <Card className="rounded-3xl shadow-card border-none">
                 <CardHeader>
                   <CardTitle className="font-display text-2xl">Login</CardTitle>
                   <CardDescription>Akses dashboard Pengrajin atau Admin Anda.</CardDescription>
@@ -85,18 +85,18 @@ export function AuthPage() {
                       <FormField control={loginForm.control} name="email" render={({ field }) => (
                         <FormItem>
                           <FormLabel>Email</FormLabel>
-                          <FormControl><Input className="rounded-xl" type="email" placeholder="email@anda.com" {...field} /></FormControl>
+                          <FormControl><Input className="rounded-2xl" type="email" placeholder="email@anda.com" {...field} /></FormControl>
                           <FormMessage />
                         </FormItem>
                       )} />
                       <FormField control={loginForm.control} name="password" render={({ field }) => (
                         <FormItem>
                           <FormLabel>Password</FormLabel>
-                          <FormControl><Input className="rounded-xl" type="password" placeholder="••••••••" {...field} /></FormControl>
+                          <FormControl><Input className="rounded-2xl" type="password" placeholder="••••••••" {...field} /></FormControl>
                           <FormMessage />
                         </FormItem>
                       )} />
-                      <Button type="submit" className="w-full rounded-xl" disabled={isLoading}>
+                      <Button type="submit" className="w-full rounded-2xl" disabled={isLoading}>
                         {isLoading ? 'Logging in...' : 'Login'}
                       </Button>
                     </form>
@@ -105,7 +105,7 @@ export function AuthPage() {
               </Card>
             </TabsContent>
             <TabsContent value="register">
-              <Card className="rounded-2xl shadow-card border-none">
+              <Card className="rounded-3xl shadow-card border-none">
                 <CardHeader>
                   <CardTitle className="font-display text-2xl">Daftar sebagai Pengrajin</CardTitle>
                   <CardDescription>Bergabunglah dengan komunitas pengrajin terverifikasi kami.</CardDescription>
@@ -114,31 +114,31 @@ export function AuthPage() {
                   <Form {...registerForm}>
                     <form onSubmit={registerForm.handleSubmit(onRegister)} className="space-y-4">
                       <FormField control={registerForm.control} name="name" render={({ field }) => (
-                        <FormItem><FormLabel>Nama Lengkap</FormLabel><FormControl><Input className="rounded-xl" {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormItem><FormLabel>Nama Lengkap</FormLabel><FormControl><Input className="rounded-2xl" {...field} /></FormControl><FormMessage /></FormItem>
                       )} />
                       <FormField control={registerForm.control} name="email" render={({ field }) => (
-                        <FormItem><FormLabel>Email</FormLabel><FormControl><Input className="rounded-xl" type="email" {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormItem><FormLabel>Email</FormLabel><FormControl><Input className="rounded-2xl" type="email" {...field} /></FormControl><FormMessage /></FormItem>
                       )} />
                        <FormField control={registerForm.control} name="storeName" render={({ field }) => (
-                        <FormItem><FormLabel>Nama Toko/Sanggar</FormLabel><FormControl><Input className="rounded-xl" {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormItem><FormLabel>Nama Toko/Sanggar</FormLabel><FormControl><Input className="rounded-2xl" {...field} /></FormControl><FormMessage /></FormItem>
                       )} />
                        <FormField control={registerForm.control} name="address" render={({ field }) => (
-                        <FormItem><FormLabel>Alamat Toko</FormLabel><FormControl><Input className="rounded-xl" {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormItem><FormLabel>Alamat Toko</FormLabel><FormControl><Input className="rounded-2xl" {...field} /></FormControl><FormMessage /></FormItem>
                       )} />
                        <FormField control={registerForm.control} name="phoneNumber" render={({ field }) => (
-                        <FormItem><FormLabel>Nomor Telepon</FormLabel><FormControl><Input className="rounded-xl" {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormItem><FormLabel>Nomor Telepon</FormLabel><FormControl><Input className="rounded-2xl" {...field} /></FormControl><FormMessage /></FormItem>
                       )} />
                       <FormField control={registerForm.control} name="password" render={({ field }) => (
-                        <FormItem><FormLabel>Password</FormLabel><FormControl><Input className="rounded-xl" type="password" {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormItem><FormLabel>Password</FormLabel><FormControl><Input className="rounded-2xl" type="password" {...field} /></FormControl><FormMessage /></FormItem>
                       )} />
                       <FormField control={registerForm.control} name="qualificationDocumentUrl" render={({ field }) => (
                         <FormItem>
                           <FormLabel>URL Dokumen Kualifikasi (Opsional)</FormLabel>
-                          <FormControl><Input className="rounded-xl" placeholder="https://link-ke-portofolio-anda.com" {...field} /></FormControl>
+                          <FormControl><Input className="rounded-2xl" placeholder="https://link-ke-portofolio-anda.com" {...field} /></FormControl>
                           <FormMessage />
                         </FormItem>
                       )} />
-                      <Button type="submit" className="w-full rounded-xl" disabled={isLoading}>
+                      <Button type="submit" className="w-full rounded-2xl" disabled={isLoading}>
                         {isLoading ? 'Mendaftar...' : 'Daftar'}
                       </Button>
                     </form>
