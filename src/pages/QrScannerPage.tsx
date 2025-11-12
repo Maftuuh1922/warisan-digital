@@ -5,8 +5,8 @@ import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { ScanLine, Upload, AlertTriangle, CheckCircle, Camera } from 'lucide-react';
 import { toast } from 'sonner';
-import { CameraView } from '@/components/CameraView';
-type InputMode = 'upload' | 'camera';
+import { CameraView } from '@/components/CameraView';interface Card {id?: string | number;[key: string]: unknown;
+}interface CardProps {children?: React.ReactNode;className?: string;style?: React.CSSProperties;[key: string]: unknown;}type InputMode = 'upload' | 'camera';
 export function QrScannerPage() {
   const [status, setStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
   const [inputMode, setInputMode] = useState<InputMode>('camera');
@@ -15,10 +15,10 @@ export function QrScannerPage() {
   const processQrCode = (source: 'file' | 'camera') => {
     setStatus('processing');
     toast.info(`Memproses QR Code dari ${source}...`);
-    // Simulate QR code decoding and redirection
+
     setTimeout(() => {
-      // In a real app, you would use a library like jsQR to decode the image.
-      // Here, we simulate a successful scan and redirect.
+
+
       const mockDecodedUrl = `${window.location.origin}/batik/b1`;
       if (mockDecodedUrl.startsWith(window.location.origin) && mockDecodedUrl.includes('/batik/')) {
         setStatus('success');
@@ -45,7 +45,7 @@ export function QrScannerPage() {
     idle: { icon: ScanLine, title: 'Pindai Kode QR', description: 'Gunakan kamera atau unggah gambar untuk memverifikasi keaslian batik.' },
     processing: { icon: ScanLine, title: 'Memproses...', description: 'Harap tunggu, kami sedang memvalidasi Kode QR Anda.' },
     success: { icon: CheckCircle, title: 'Berhasil!', description: 'Kode QR valid. Anda akan diarahkan sebentar lagi.' },
-    error: { icon: AlertTriangle, title: 'Gagal!', description: 'Kode QR tidak dapat dibaca atau tidak valid. Silakan coba lagi.' },
+    error: { icon: AlertTriangle, title: 'Gagal!', description: 'Kode QR tidak dapat dibaca atau tidak valid. Silakan coba lagi.' }
   };
   const currentStatus = statusInfo[status];
   const Icon = currentStatus.icon;
@@ -58,26 +58,26 @@ export function QrScannerPage() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
-              className="w-full max-w-md text-center"
-            >
+              className="w-full max-w-md text-center">
+
               <Card className="bg-card rounded-2xl shadow-card p-8">
-                {inputMode === 'camera' && status === 'idle' ? (
-                  <CameraView onCapture={handleCapture} />
-                ) : (
-                  <>
+                {inputMode === 'camera' && status === 'idle' ?
+                <CameraView onCapture={handleCapture} /> :
+
+                <>
                     <div className="mb-6">
                       <div className={`mx-auto w-20 h-20 rounded-full bg-muted flex items-center justify-center ${status === 'processing' ? 'animate-pulse' : ''}`}>
                         <Icon className={`h-10 w-10 ${
-                          status === 'success' ? 'text-green-500' :
-                          status === 'error' ? 'text-red-500' :
-                          'text-brand-accent'
-                        }`} />
+                      status === 'success' ? 'text-green-500' :
+                      status === 'error' ? 'text-red-500' :
+                      'text-brand-accent'}`
+                      } />
                       </div>
                     </div>
                     <h1 className="text-2xl font-display font-bold text-foreground">{currentStatus.title}</h1>
                     <p className="mt-2 text-muted-foreground">{currentStatus.description}</p>
                   </>
-                )}
+                }
                 <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
                 <div className="mt-8 space-y-3">
                   <Button
@@ -87,8 +87,8 @@ export function QrScannerPage() {
                       if (status === 'error') setStatus('idle');
                       setInputMode('camera');
                     }}
-                    disabled={status === 'processing' || status === 'success'}
-                  >
+                    disabled={status === 'processing' || status === 'success'}>
+
                     <Camera className="mr-2 h-5 w-5" />
                     Gunakan Kamera
                   </Button>
@@ -101,8 +101,8 @@ export function QrScannerPage() {
                       setInputMode('upload');
                       fileInputRef.current?.click();
                     }}
-                    disabled={status === 'processing' || status === 'success'}
-                  >
+                    disabled={status === 'processing' || status === 'success'}>
+
                     <Upload className="mr-2 h-5 w-5" />
                     Unggah Gambar
                   </Button>
@@ -112,6 +112,6 @@ export function QrScannerPage() {
           </div>
         </div>
       </div>
-    </AppLayout>
-  );
+    </AppLayout>);
+
 }
