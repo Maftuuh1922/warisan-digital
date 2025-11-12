@@ -20,8 +20,9 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { AboutPage } from './pages/AboutPage';
 import { ArtisansPage } from './pages/ArtisansPage';
 import { PrintQrPage } from './pages/PrintQrPage';
-import { PlaceholderPage } from './pages/PlaceholderPage';
 import { GaleriPage } from './pages/GaleriPage';
+import { AiAnalysisPage } from './pages/AiAnalysisPage';
+import { QrScannerPage } from './pages/QrScannerPage';
 const router = createBrowserRouter([
   {
     path: "/",
@@ -35,12 +36,12 @@ const router = createBrowserRouter([
   },
   {
     path: "/analisis-ai",
-    element: <PlaceholderPage pageName="Analisis AI" />,
+    element: <AiAnalysisPage />,
     errorElement: <RouteErrorBoundary />,
   },
   {
     path: "/scan-qr",
-    element: <PlaceholderPage pageName="Scan QR" />,
+    element: <QrScannerPage />,
     errorElement: <RouteErrorBoundary />,
   },
   {

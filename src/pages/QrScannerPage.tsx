@@ -2,83 +2,64 @@ import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { motion } from 'framer-motion';
-import { ScanLine, Upload, AlertTriangle, CheckCircle, Camera } from 'lucide-react';
+import { ScanLine, Upload, AlertTriangle, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import { CameraView } from '@/components/CameraView';
-import jsQR from 'jsqr-es6';
-type InputMode = 'upload' | 'camera';
 export function QrScannerPage() {
+  const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
-  const [inputMode, setInputMode] = useState<InputMode>('camera');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
-  const decodeQrCode = (imageData: ImageData): string | null => {
-    try {
-      const code = jsQR(imageData.data, imageData.width, imageData.height);
-      return code?.data || null;
-    } catch (error) {
-      console.error('QR decoding failed:', error);
-      return null;
-    }
-  };
-  const processImageBlob = async (blob: Blob) => {
-    setStatus('processing');
-    toast.info('Memproses QR Code...');
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-          setStatus('error');
-          toast.error('Gagal memproses gambar.');
-          return;
-        }
-        ctx.drawImage(img, 0, 0, img.width, img.height);
-        const imageData = ctx.getImageData(0, 0, img.width, img.height);
-        const decodedUrl = decodeQrCode(imageData);
-        if (decodedUrl && decodedUrl.startsWith(window.location.origin) && decodedUrl.includes('/batik/')) {
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = event.target.files?.[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      setStatus('processing');
+      toast.info('Memproses gambar QR Code...');
+      // Simulate QR code decoding and redirection
+      setTimeout(() => {
+        // In a real app, you would use a library like jsQR to decode the image.
+        // Here, we simulate a successful scan and redirect.
+        const mockDecodedUrl = `${window.location.origin}/batik/b1`;
+        if (mockDecodedUrl.startsWith(window.location.origin) && mockDecodedUrl.includes('/batik/')) {
           setStatus('success');
           toast.success('QR Code valid! Mengarahkan...');
           setTimeout(() => {
-            navigate(new URL(decodedUrl).pathname);
+            navigate(new URL(mockDecodedUrl).pathname);
           }, 1000);
         } else {
           setStatus('error');
           toast.error('QR Code tidak valid atau bukan dari platform BatikIn.');
+          setFile(null);
         }
-      };
-      img.onerror = () => {
-        setStatus('error');
-        toast.error('Gagal memuat gambar.');
-      };
-      img.src = event.target?.result as string;
-    };
-    reader.onerror = () => {
-      setStatus('error');
-      toast.error('Gagal membaca file gambar.');
-    };
-    reader.readAsDataURL(blob);
-  };
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = event.target.files?.[0];
-    if (selectedFile) {
-      processImageBlob(selectedFile);
+      }, 2000);
     }
   };
-  const handleCapture = (blob: Blob) => {
-    processImageBlob(blob);
-  };
   const statusInfo = {
-    idle: { icon: ScanLine, title: 'Pindai Kode QR', description: 'Gunakan kamera atau unggah gambar untuk memverifikasi keaslian batik.' },
-    processing: { icon: ScanLine, title: 'Memproses...', description: 'Harap tunggu, kami sedang memvalidasi Kode QR Anda.' },
-    success: { icon: CheckCircle, title: 'Berhasil!', description: 'Kode QR valid. Anda akan diarahkan sebentar lagi.' },
-    error: { icon: AlertTriangle, title: 'Gagal!', description: 'Kode QR tidak dapat dibaca atau tidak valid. Silakan coba lagi.' }
+    idle: {
+      icon: ScanLine,
+      title: 'Pindai Kode QR',
+      description: 'Unggah gambar Kode QR untuk memverifikasi keaslian batik.',
+      buttonText: 'Pilih Gambar',
+    },
+    processing: {
+      icon: ScanLine,
+      title: 'Memproses...',
+      description: 'Harap tunggu, kami sedang memvalidasi Kode QR Anda.',
+      buttonText: 'Memproses...',
+    },
+    success: {
+      icon: CheckCircle,
+      title: 'Berhasil!',
+      description: 'Kode QR valid. Anda akan diarahkan sebentar lagi.',
+      buttonText: 'Berhasil',
+    },
+    error: {
+      icon: AlertTriangle,
+      title: 'Gagal!',
+      description: 'Kode QR tidak dapat dibaca atau tidak valid. Silakan coba lagi.',
+      buttonText: 'Coba Lagi',
+    },
   };
   const currentStatus = statusInfo[status];
   const Icon = currentStatus.icon;
@@ -91,53 +72,43 @@ export function QrScannerPage() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
-              className="w-full max-w-md text-center">
-              <Card className="bg-card rounded-2xl shadow-card p-8">
-                {inputMode === 'camera' && status === 'idle' ? (
-                  <CameraView onCapture={handleCapture} />
-                ) : (
-                  <>
-                    <div className="mb-6">
-                      <div className={`mx-auto w-20 h-20 rounded-full bg-muted flex items-center justify-center ${status === 'processing' ? 'animate-pulse' : ''}`}>
-                        <Icon className={`h-10 w-10 ${
-                          status === 'success' ? 'text-green-500' :
-                          status === 'error' ? 'text-red-500' :
-                          'text-brand-accent'
-                        }`} />
-                      </div>
-                    </div>
-                    <h1 className="text-2xl font-display font-bold text-foreground">{currentStatus.title}</h1>
-                    <p className="mt-2 text-muted-foreground">{currentStatus.description}</p>
-                  </>
-                )}
-                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
-                <div className="mt-8 space-y-3">
-                  <Button
-                    size="lg"
-                    className="w-full rounded-xl"
-                    onClick={() => {
-                      if (status === 'error') setStatus('idle');
-                      setInputMode('camera');
-                    }}
-                    disabled={status === 'processing' || status === 'success'}>
-                    <Camera className="mr-2 h-5 w-5" />
-                    Gunakan Kamera
-                  </Button>
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="w-full rounded-xl"
-                    onClick={() => {
-                      if (status === 'error') setStatus('idle');
-                      setInputMode('upload');
-                      fileInputRef.current?.click();
-                    }}
-                    disabled={status === 'processing' || status === 'success'}>
-                    <Upload className="mr-2 h-5 w-5" />
-                    Unggah Gambar
-                  </Button>
+              className="w-full max-w-md text-center"
+            >
+              <div className="bg-card rounded-2xl shadow-card p-8">
+                <div className="mb-6">
+                  <div className={`mx-auto w-20 h-20 rounded-full bg-muted flex items-center justify-center ${status === 'processing' ? 'animate-pulse' : ''}`}>
+                    <Icon className={`h-10 w-10 ${
+                      status === 'success' ? 'text-green-500' :
+                      status === 'error' ? 'text-red-500' :
+                      'text-brand-accent'
+                    }`} />
+                  </div>
                 </div>
-              </Card>
+                <h1 className="text-2xl font-display font-bold text-foreground">{currentStatus.title}</h1>
+                <p className="mt-2 text-muted-foreground">{currentStatus.description}</p>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+                <Button
+                  size="lg"
+                  className="w-full mt-8 rounded-xl"
+                  onClick={() => {
+                    if (status === 'error') {
+                      setStatus('idle');
+                      setFile(null);
+                    }
+                    fileInputRef.current?.click();
+                  }}
+                  disabled={status === 'processing' || status === 'success'}
+                >
+                  {status !== 'idle' && status !== 'error' && <Upload className="mr-2 h-5 w-5" />}
+                  {currentStatus.buttonText}
+                </Button>
+              </div>
             </motion.div>
           </div>
         </div>

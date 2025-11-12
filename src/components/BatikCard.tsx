@@ -33,7 +33,7 @@ export function BatikCard({ batik, index }: BatikCardProps) {
       <Link to={`/batik/${batik.id}`} className="block h-full group">
         <Card className="h-full flex flex-col overflow-hidden transition-all duration-200 ease-in-out hover:shadow-xl border-border/60 group-hover:border-brand-accent/50">
           <CardHeader className="p-0">
-            <div className="aspect-w-4 aspect-h-3">
+            <div className="aspect-[4/3]">
               <img
                 src={batik.imageUrl}
                 alt={batik.name}
