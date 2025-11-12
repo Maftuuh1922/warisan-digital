@@ -1,18 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { QRCodeSVG } from 'qrcode.react';
+import QRCode from 'qrcode.react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { api } from '@/lib/api-client';
 import type { Batik } from '@shared/types';
-import { ArrowLeft, Printer } from 'lucide-react';
+import { ArrowLeft, Printer, Feather } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
-const BatikIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" stroke="#3E2723" strokeWidth="2" strokeLinejoin="round"/>
-    <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="#D4AF37" fillOpacity="0.3"/>
-  </svg>
-);
 export function PrintQrPage() {
   const { batikId } = useParams<{ batikId: string }>();
   const [batik, setBatik] = useState<Batik | null>(null);
@@ -27,6 +21,7 @@ export function PrintQrPage() {
       setError(null);
       try {
         const data = await api<Batik>(`/api/batiks/${batikId}`);
+        // Security check: ensure the logged-in user owns this batik
         if (user?.role !== 'admin' && data.artisanId !== user?.id) {
           setError('You are not authorized to view this QR code.');
         } else {
@@ -47,16 +42,16 @@ export function PrintQrPage() {
   return (
     <div className="bg-background min-h-screen flex flex-col items-center justify-center p-4 print:bg-white">
       <div className="absolute top-4 left-4 print:hidden">
-        <Button variant="ghost" onClick={() => navigate(-1)} className="rounded-xl">
+        <Button variant="ghost" onClick={() => navigate(-1)}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Dashboard
         </Button>
       </div>
-      <div className="w-full max-w-md mx-auto bg-card p-8 rounded-2xl shadow-card print:shadow-none print:border print:border-foreground">
+      <div className="w-full max-w-md mx-auto bg-card p-8 rounded-lg shadow-lg print:shadow-none print:border print:border-black">
         {isLoading ? (
-          <div className="flex flex-col items-center space-y-6">
+          <div className="flex flex-col items-center space-y-4">
             <Skeleton className="h-8 w-3/4" />
-            <Skeleton className="h-64 w-64 rounded-lg" />
+            <Skeleton className="h-64 w-64" />
             <Skeleton className="h-5 w-1/2" />
           </div>
         ) : error || !batik ? (
@@ -66,19 +61,19 @@ export function PrintQrPage() {
           </div>
         ) : (
           <div className="flex flex-col items-center text-center space-y-6">
-            <div className="flex items-center gap-2 text-xl font-display font-bold text-foreground">
-              <BatikIcon />
-              <span>BatikIn</span>
+            <div className="flex items-center gap-2 text-lg font-bold text-brand-primary">
+              <Feather className="h-6 w-6 text-brand-accent" />
+              <span>Warisan Digital</span>
             </div>
-            <h1 className="text-2xl font-bold font-display text-foreground">{batik.name}</h1>
+            <h1 className="text-2xl font-bold text-foreground">{batik.name}</h1>
             <p className="text-muted-foreground">by {batik.artisanName}</p>
-            <div className="p-4 bg-white rounded-lg">
-              <QRCodeSVG value={qrUrl} size={256} level="H" includeMargin={true} />
+            <div className="p-4 bg-white rounded-md">
+              <QRCode value={qrUrl} size={256} level="H" includeMargin={true} />
             </div>
             <p className="text-sm text-muted-foreground max-w-xs">
               Scan this QR code to verify the authenticity and discover the story of this unique batik.
             </p>
-            <Button onClick={handlePrint} className="w-full print:hidden rounded-xl">
+            <Button onClick={handlePrint} className="w-full print:hidden bg-brand-accent hover:bg-brand-accent/90">
               <Printer className="mr-2 h-4 w-4" />
               Print Tag
             </Button>

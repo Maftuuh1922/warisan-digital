@@ -17,7 +17,7 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
   });
   app.post('/api/auth/register', async (c) => {
     const body = await c.req.json();
-    const { name, email, storeName, address, phoneNumber } = body;
+    const { name, email, storeName, address, phoneNumber, qualificationDocumentUrl } = body;
     if (!name || !email || !storeName || !address || !phoneNumber) {
       return bad(c, 'Missing required fields for registration.');
     }
@@ -39,7 +39,7 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
       storeName,
       address,
       phoneNumber,
-      qualificationDocumentUrl: '', // Placeholder
+      qualificationDocumentUrl: qualificationDocumentUrl || '', // Accept optional URL
     };
     await UserEntity.create(c.env, newUser);
     await PengrajinDetailsEntity.create(c.env, newDetails);

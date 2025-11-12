@@ -19,6 +19,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { AboutPage } from './pages/AboutPage';
 import { ArtisansPage } from './pages/ArtisansPage';
+import { PrintQrPage } from './pages/PrintQrPage';
 const router = createBrowserRouter([
   {
     path: "/",
@@ -59,6 +60,15 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute role="admin">
         <AdminDashboardPage />
+      </ProtectedRoute>
+    ),
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/dashboard/artisan/qr/:batikId",
+    element: (
+      <ProtectedRoute role="artisan">
+        <PrintQrPage />
       </ProtectedRoute>
     ),
     errorElement: <RouteErrorBoundary />,

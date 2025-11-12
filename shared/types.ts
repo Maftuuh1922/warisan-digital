@@ -11,6 +11,7 @@ export interface User {
   status: 'pending' | 'verified' | 'rejected';
 }
 export interface PengrajinDetails {
+  id: string; // Required for IndexedEntity
   userId: string;
   storeName: string;
   address: string;

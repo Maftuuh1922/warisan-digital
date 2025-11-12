@@ -4,12 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, RefreshCw } from 'lucide-react';
+import { MoreHorizontal, RefreshCw, UserPlus } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import { useArtisanStore } from '@/stores/artisanStore';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArtisanDetailModal } from '@/components/dashboard/ArtisanDetailModal';
+import { EmptyState } from '@/components/EmptyState';
 export function AdminDashboardPage() {
   const fetchArtisans = useArtisanStore((s) => s.fetchArtisans);
   const artisans = useArtisanStore((s) => s.artisans);
@@ -44,29 +45,45 @@ export function AdminDashboardPage() {
           <CardDescription>A list of all artisans and their verification status.</CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Artisan Name</TableHead>
-                <TableHead>Store Name</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>
-                  <span className="sr-only">Actions</span>
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading && !artisans.length ? (
-                [...Array(5)].map((_, i) => (
+          {isLoading && !artisans.length ? (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Artisan Name</TableHead>
+                  <TableHead>Store Name</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead><span className="sr-only">Actions</span></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {[...Array(5)].map((_, i) => (
                   <TableRow key={i}>
                     <TableCell><Skeleton className="h-5 w-32" /></TableCell>
                     <TableCell><Skeleton className="h-5 w-40" /></TableCell>
                     <TableCell><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
                     <TableCell><Skeleton className="h-8 w-8" /></TableCell>
                   </TableRow>
-                ))
-              ) : (
-                artisans.map((artisan) => (
+                ))}
+              </TableBody>
+            </Table>
+          ) : !isLoading && artisans.length === 0 ? (
+            <EmptyState
+              icon={UserPlus}
+              title="No Pending Requests"
+              description="There are currently no new artisan registration requests to review."
+            />
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Artisan Name</TableHead>
+                  <TableHead>Store Name</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead><span className="sr-only">Actions</span></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {artisans.map((artisan) => (
                   <TableRow key={artisan.id}>
                     <TableCell className="font-medium">{artisan.name}</TableCell>
                     <TableCell>{artisan.details?.storeName || 'N/A'}</TableCell>
@@ -103,10 +120,10 @@ export function AdminDashboardPage() {
                       </DropdownMenu>
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
       <ArtisanDetailModal isOpen={isDetailModalOpen} onClose={() => setIsDetailModalOpen(false)} />

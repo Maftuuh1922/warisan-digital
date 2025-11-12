@@ -22,6 +22,7 @@ const registerSchema = z.object({
   storeName: z.string().min(2, { message: 'Store name is required.' }),
   address: z.string().min(5, { message: 'Address is required.' }),
   phoneNumber: z.string().min(10, { message: 'Valid phone number is required.' }),
+  qualificationDocumentUrl: z.string().url({ message: 'Please enter a valid URL.' }).optional().or(z.literal('')),
 });
 export function AuthPage() {
   const navigate = useNavigate();
@@ -34,7 +35,7 @@ export function AuthPage() {
   });
   const registerForm = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { name: '', email: '', password: '', storeName: '', address: '', phoneNumber: '' },
+    defaultValues: { name: '', email: '', password: '', storeName: '', address: '', phoneNumber: '', qualificationDocumentUrl: '' },
   });
   const onLogin = async (data: z.infer<typeof loginSchema>) => {
     const user = await login(data);
@@ -129,6 +130,13 @@ export function AuthPage() {
                       )} />
                       <FormField control={registerForm.control} name="password" render={({ field }) => (
                         <FormItem><FormLabel>Password</FormLabel><FormControl><Input type="password" {...field} /></FormControl><FormMessage /></FormItem>
+                      )} />
+                      <FormField control={registerForm.control} name="qualificationDocumentUrl" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Qualification Document URL (Optional)</FormLabel>
+                          <FormControl><Input placeholder="e.g., https://link-to-your-portfolio.com" {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
                       )} />
                       <Button type="submit" className="w-full bg-brand-accent hover:bg-brand-accent/90" disabled={isLoading}>
                         {isLoading ? 'Registering...' : 'Register'}
