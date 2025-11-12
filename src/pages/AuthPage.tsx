@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -6,10 +7,10 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuthStore } from '@/stores/authStore';
 import { toast } from 'sonner';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 const loginSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
   password: z.string().min(1, { message: 'Password is required.' }),
@@ -19,130 +20,98 @@ const registerSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
   password: z.string().min(8, { message: 'Password must be at least 8 characters.' }),
   storeName: z.string().min(2, { message: 'Store name is required.' }),
-  address: z.string().min(5, { message: 'Address is required.' }),
-  phoneNumber: z.string().min(10, { message: 'Valid phone number is required.' }),
-  qualificationDocumentUrl: z.string().url({ message: 'Please enter a valid URL.' }).optional().or(z.literal('')),
 });
 export function AuthPage() {
   const navigate = useNavigate();
   const login = useAuthStore((s) => s.login);
   const registerArtisan = useAuthStore((s) => s.register);
-  const isLoading = useAuthStore((s) => s.isLoading);
-  const loginForm = useForm<z.infer<typeof loginSchema>>({
+  const { register: registerLogin, handleSubmit: handleLoginSubmit, formState: { errors: loginErrors } } = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: '', password: '' },
   });
-  const registerForm = useForm<z.infer<typeof registerSchema>>({
+  const { register: registerRegister, handleSubmit: handleRegisterSubmit, formState: { errors: registerErrors } } = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { name: '', email: '', password: '', storeName: '', address: '', phoneNumber: '', qualificationDocumentUrl: '' },
   });
-  const onLogin = async (data: z.infer<typeof loginSchema>) => {
-    const user = await login(data);
+  const onLogin = (data: z.infer<typeof loginSchema>) => {
+    const user = login(data.email);
     if (user) {
-      if (user.status !== 'verified') {
-        toast.warning('Akun Anda belum diverifikasi. Mohon tunggu persetujuan admin.');
-        useAuthStore.getState().logout();
-        return;
-      }
-      toast.success(`Selamat datang kembali, ${user.name}!`);
+      toast.success(`Welcome back, ${user.name}!`);
       if (user.role === 'admin') {
         navigate('/dashboard/admin');
       } else {
         navigate('/dashboard/artisan');
       }
     } else {
-      toast.error('Email atau password salah.');
+      toast.error('Invalid credentials. Please try again.');
     }
   };
-  const onRegister = async (data: z.infer<typeof registerSchema>) => {
-    const newUser = await registerArtisan({ ...data, id: crypto.randomUUID() });
-    if (newUser) {
-      toast.success('Pendaftaran berhasil! Aplikasi Anda sedang ditinjau oleh administrator.');
-      registerForm.reset();
-    } else {
-      toast.error('Pendaftaran gagal. Email mungkin sudah digunakan.');
-    }
+  const onRegister = (data: z.infer<typeof registerSchema>) => {
+    registerArtisan({ name: data.name, email: data.email, role: 'artisan' });
+    toast.success('Registration successful! Your application is pending review.');
+    // In a real app, you might redirect or show a success message.
+    // For now, we'll just stay on the page.
   };
   return (
     <AppLayout>
-      <div className="relative min-h-[calc(100vh-10rem)] flex items-center justify-center py-16 md:py-24 batik-background overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-primary via-brand-primary/80 to-brand-primary" />
-        <div className="relative z-10 w-full max-w-md px-4">
-          <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-card/80 backdrop-blur-sm rounded-2xl p-1">
-              <TabsTrigger value="login" className="rounded-xl">Login</TabsTrigger>
-              <TabsTrigger value="register" className="rounded-xl">Daftar</TabsTrigger>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="py-16 md:py-24 flex items-center justify-center">
+          <Tabs defaultValue="login" className="w-[400px]">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="login">Login</TabsTrigger>
+              <TabsTrigger value="register">Register</TabsTrigger>
             </TabsList>
             <TabsContent value="login">
-              <Card className="rounded-3xl shadow-card border-none">
+              <Card>
                 <CardHeader>
-                  <CardTitle className="font-display text-2xl">Login</CardTitle>
-                  <CardDescription>Akses dashboard Pengrajin atau Admin Anda.</CardDescription>
+                  <CardTitle>Login</CardTitle>
+                  <CardDescription>Access your Artisan or Admin dashboard.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Form {...loginForm}>
-                    <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-4">
-                      <FormField control={loginForm.control} name="email" render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email</FormLabel>
-                          <FormControl><Input className="rounded-2xl" type="email" placeholder="email@anda.com" {...field} /></FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )} />
-                      <FormField control={loginForm.control} name="password" render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Password</FormLabel>
-                          <FormControl><Input className="rounded-2xl" type="password" placeholder="••••••••" {...field} /></FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )} />
-                      <Button type="submit" className="w-full rounded-2xl" disabled={isLoading}>
-                        {isLoading ? 'Logging in...' : 'Login'}
-                      </Button>
-                    </form>
-                  </Form>
+                  <form onSubmit={handleLoginSubmit(onLogin)} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="login-email">Email</Label>
+                      <Input id="login-email" type="email" placeholder="admin@warisan.digital" {...registerLogin('email')} />
+                      {loginErrors.email && <p className="text-sm text-destructive">{loginErrors.email.message}</p>}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="login-password">Password</Label>
+                      <Input id="login-password" type="password" {...registerLogin('password')} defaultValue="password" />
+                      {loginErrors.password && <p className="text-sm text-destructive">{loginErrors.password.message}</p>}
+                    </div>
+                    <Button type="submit" className="w-full bg-brand-accent hover:bg-brand-accent/90">Login</Button>
+                  </form>
                 </CardContent>
               </Card>
             </TabsContent>
             <TabsContent value="register">
-              <Card className="rounded-3xl shadow-card border-none">
+              <Card>
                 <CardHeader>
-                  <CardTitle className="font-display text-2xl">Daftar sebagai Pengrajin</CardTitle>
-                  <CardDescription>Bergabunglah dengan komunitas pengrajin terverifikasi kami.</CardDescription>
+                  <CardTitle>Register as Artisan</CardTitle>
+                  <CardDescription>Join our community of verified artisans.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Form {...registerForm}>
-                    <form onSubmit={registerForm.handleSubmit(onRegister)} className="space-y-4">
-                      <FormField control={registerForm.control} name="name" render={({ field }) => (
-                        <FormItem><FormLabel>Nama Lengkap</FormLabel><FormControl><Input className="rounded-2xl" {...field} /></FormControl><FormMessage /></FormItem>
-                      )} />
-                      <FormField control={registerForm.control} name="email" render={({ field }) => (
-                        <FormItem><FormLabel>Email</FormLabel><FormControl><Input className="rounded-2xl" type="email" {...field} /></FormControl><FormMessage /></FormItem>
-                      )} />
-                       <FormField control={registerForm.control} name="storeName" render={({ field }) => (
-                        <FormItem><FormLabel>Nama Toko/Sanggar</FormLabel><FormControl><Input className="rounded-2xl" {...field} /></FormControl><FormMessage /></FormItem>
-                      )} />
-                       <FormField control={registerForm.control} name="address" render={({ field }) => (
-                        <FormItem><FormLabel>Alamat Toko</FormLabel><FormControl><Input className="rounded-2xl" {...field} /></FormControl><FormMessage /></FormItem>
-                      )} />
-                       <FormField control={registerForm.control} name="phoneNumber" render={({ field }) => (
-                        <FormItem><FormLabel>Nomor Telepon</FormLabel><FormControl><Input className="rounded-2xl" {...field} /></FormControl><FormMessage /></FormItem>
-                      )} />
-                      <FormField control={registerForm.control} name="password" render={({ field }) => (
-                        <FormItem><FormLabel>Password</FormLabel><FormControl><Input className="rounded-2xl" type="password" {...field} /></FormControl><FormMessage /></FormItem>
-                      )} />
-                      <FormField control={registerForm.control} name="qualificationDocumentUrl" render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>URL Dokumen Kualifikasi (Opsional)</FormLabel>
-                          <FormControl><Input className="rounded-2xl" placeholder="https://link-ke-portofolio-anda.com" {...field} /></FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )} />
-                      <Button type="submit" className="w-full rounded-2xl" disabled={isLoading}>
-                        {isLoading ? 'Mendaftar...' : 'Daftar'}
-                      </Button>
-                    </form>
-                  </Form>
+                  <form onSubmit={handleRegisterSubmit(onRegister)} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="register-name">Full Name</Label>
+                      <Input id="register-name" {...registerRegister('name')} />
+                      {registerErrors.name && <p className="text-sm text-destructive">{registerErrors.name.message}</p>}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="register-email">Email</Label>
+                      <Input id="register-email" type="email" {...registerRegister('email')} />
+                      {registerErrors.email && <p className="text-sm text-destructive">{registerErrors.email.message}</p>}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="register-store">Store Name</Label>
+                      <Input id="register-store" {...registerRegister('storeName')} />
+                      {registerErrors.storeName && <p className="text-sm text-destructive">{registerErrors.storeName.message}</p>}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="register-password">Password</Label>
+                      <Input id="register-password" type="password" {...registerRegister('password')} />
+                      {registerErrors.password && <p className="text-sm text-destructive">{registerErrors.password.message}</p>}
+                    </div>
+                    <Button type="submit" className="w-full bg-brand-accent hover:bg-brand-accent/90">Register</Button>
+                  </form>
                 </CardContent>
               </Card>
             </TabsContent>

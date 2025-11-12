@@ -1,56 +1,40 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { User, PengrajinDetails } from '@shared/types';
-import { api } from '@/lib/api-client';
-type LoginCredentials = { email: string; password?: string };
-type RegisterData = Omit<User, 'id' | 'status' | 'role'> & Omit<PengrajinDetails, 'userId' | 'qualificationDocumentUrl'> & { password?: string };
+import type { User } from '@shared/types';
+import { MOCK_USERS } from '@/lib/mock-data';
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
-  isLoading: boolean;
-  login: (credentials: LoginCredentials) => Promise<User | null>;
+  login: (email: string) => User | null;
   logout: () => void;
-  register: (data: RegisterData) => Promise<User | null>;
+  register: (userData: Omit<User, 'id' | 'status'>) => User;
 }
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       isAuthenticated: false,
-      isLoading: false,
-      login: async (credentials) => {
-        set({ isLoading: true });
-        try {
-          const user = await api<User>('/api/auth/login', {
-            method: 'POST',
-            body: JSON.stringify(credentials),
-          });
-          set({ user, isAuthenticated: true, isLoading: false });
+      login: (email: string) => {
+        const user = MOCK_USERS.find((u) => u.email.toLowerCase() === email.toLowerCase());
+        if (user) {
+          set({ user, isAuthenticated: true });
           return user;
-        } catch (error) {
-          set({ isLoading: false });
-          console.error("Login failed:", error);
-          return null;
         }
+        return null;
       },
       logout: () => {
         set({ user: null, isAuthenticated: false });
       },
-      register: async (data) => {
-        set({ isLoading: true });
-        try {
-          const newUser = await api<User>('/api/auth/register', {
-            method: 'POST',
-            body: JSON.stringify(data),
-          });
-          set({ isLoading: false });
-          // Don't log in the user, they need to be verified first.
-          return newUser;
-        } catch (error) {
-          set({ isLoading: false });
-          console.error("Registration failed:", error);
-          return null;
-        }
+      register: (userData) => {
+        const newUser: User = {
+          ...userData,
+          id: `a${MOCK_USERS.length + 1}`,
+          status: 'pending',
+        };
+        // In a real app, this would be an API call
+        MOCK_USERS.push(newUser);
+        console.log("New user registered (mock):", newUser);
+        return newUser;
       },
     }),
     {

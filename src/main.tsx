@@ -12,6 +12,10 @@ import { RouteErrorBoundary } from '@/components/RouteErrorBoundary';
 import '@/index.css'
 import { HomePage } from '@/pages/HomePage'
 import { BatikDetailPage } from '@/pages/BatikDetailPage';
+import { AuthPage } from '@/pages/AuthPage';
+import { ArtisanDashboardPage } from '@/pages/dashboard/ArtisanDashboardPage';
+import { AdminDashboardPage } from '@/pages/dashboard/AdminDashboardPage';
+import { Toaster } from '@/components/ui/sonner';
 const router = createBrowserRouter([
   {
     path: "/",
@@ -23,12 +27,28 @@ const router = createBrowserRouter([
     element: <BatikDetailPage />,
     errorElement: <RouteErrorBoundary />,
   },
+  {
+    path: "/auth",
+    element: <AuthPage />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/dashboard/artisan",
+    element: <ArtisanDashboardPage />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/dashboard/admin",
+    element: <AdminDashboardPage />,
+    errorElement: <RouteErrorBoundary />,
+  },
 ]);
 // Do not touch this code
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ErrorBoundary>
       <RouterProvider router={router} />
+      <Toaster richColors closeButton />
     </ErrorBoundary>
   </StrictMode>,
 )

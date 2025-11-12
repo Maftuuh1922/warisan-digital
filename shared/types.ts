@@ -6,8 +6,16 @@ export interface ApiResponse<T = unknown> {
 export interface User {
   id: string;
   name: string;
+  email: string;
   role: 'artisan' | 'admin';
   status: 'pending' | 'verified' | 'rejected';
+}
+export interface PengrajinDetails {
+  userId: string;
+  storeName: string;
+  address: string;
+  phoneNumber: string;
+  qualificationDocumentUrl: string;
 }
 export interface Batik {
   id: string;

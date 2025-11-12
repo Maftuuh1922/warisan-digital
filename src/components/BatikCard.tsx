@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, Variants, Easing } from 'framer-motion';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight } from 'lucide-react';
@@ -8,7 +8,7 @@ interface BatikCardProps {
   batik: Batik;
   index: number;
 }
-const cardVariants = {
+const cardVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: (i: number) => ({
     opacity: 1,
@@ -16,7 +16,7 @@ const cardVariants = {
     transition: {
       delay: i * 0.05,
       duration: 0.3,
-      ease: 'easeOut',
+      ease: 'easeOut' as Easing,
     },
   }),
 };
@@ -30,8 +30,8 @@ export function BatikCard({ batik, index }: BatikCardProps) {
       whileHover={{ y: -5, scale: 1.02 }}
       className="h-full"
     >
-      <Link to={`/batik/${batik.id}`} className="block h-full">
-        <Card className="h-full flex flex-col overflow-hidden transition-all duration-200 ease-in-out hover:shadow-xl border-border/60 hover:border-brand-accent/50">
+      <Link to={`/batik/${batik.id}`} className="block h-full group">
+        <Card className="h-full flex flex-col overflow-hidden transition-all duration-200 ease-in-out hover:shadow-xl border-border/60 group-hover:border-brand-accent/50">
           <CardHeader className="p-0">
             <div className="aspect-w-4 aspect-h-3">
               <img
@@ -50,7 +50,7 @@ export function BatikCard({ batik, index }: BatikCardProps) {
             <p className="text-sm font-medium text-brand-accent">
               By {batik.artisanName}
             </p>
-            <div className="flex items-center text-sm font-semibold text-foreground/80 group-hover:text-brand-accent">
+            <div className="flex items-center text-sm font-semibold text-foreground/80 group-hover:text-brand-accent transition-colors">
               Details <ArrowRight className="ml-1 h-4 w-4" />
             </div>
           </CardFooter>

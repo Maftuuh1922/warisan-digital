@@ -1,4 +1,17 @@
-import type { Batik } from '@shared/types';
+import type { Batik, User, PengrajinDetails } from '@shared/types';
+export const MOCK_USERS: User[] = [
+  { id: 'admin1', name: 'Admin Utama', email: 'admin@warisan.digital', role: 'admin', status: 'verified' },
+  { id: 'a1', name: 'Ibu Wati', email: 'wati@batik.com', role: 'artisan', status: 'verified' },
+  { id: 'a2', name: 'Bapak Joko', email: 'joko@batik.com', role: 'artisan', status: 'verified' },
+  { id: 'a3', name: 'Sanggar Lestari', email: 'lestari@batik.com', role: 'artisan', status: 'pending' },
+  { id: 'a4', name: 'Galeri Indah', email: 'indah@batik.com', role: 'artisan', status: 'rejected' },
+];
+export const MOCK_PENGRAJIN_DETAILS: PengrajinDetails[] = [
+  { userId: 'a1', storeName: 'Batik Wati Solo', address: 'Jl. Slamet Riyadi No. 1, Solo', phoneNumber: '081234567890', qualificationDocumentUrl: '/docs/doc1.pdf' },
+  { userId: 'a2', storeName: 'Joko Batik Pekalongan', address: 'Jl. Pesisir No. 10, Pekalongan', phoneNumber: '081234567891', qualificationDocumentUrl: '/docs/doc2.pdf' },
+  { userId: 'a3', storeName: 'Sanggar Lestari Yogyakarta', address: 'Jl. Malioboro No. 5, Yogyakarta', phoneNumber: '081234567892', qualificationDocumentUrl: '/docs/doc3.pdf' },
+  { userId: 'a4', storeName: 'Galeri Indah Cirebon', address: 'Jl. Trusmi No. 8, Cirebon', phoneNumber: '081234567893', qualificationDocumentUrl: '/docs/doc4.pdf' },
+];
 export const MOCK_BATIK_DATA: Batik[] = [
   {
     id: 'b1',
