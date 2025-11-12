@@ -36,7 +36,7 @@ export function BatikDetailPage() {
       try {
         const batikData = await api<Batik>(`/api/batiks/${id}`);
         setBatik(batikData);
-        if (batikData.artisanId) {
+        if (batikData.artisanId && batikData.artisanId !== 'system-seeded') {
           const artisanData = await api<ArtisanWithDetails>(`/api/artisans/${batikData.artisanId}`);
           setArtisan(artisanData);
         }
