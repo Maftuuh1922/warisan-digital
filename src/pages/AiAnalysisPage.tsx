@@ -29,11 +29,10 @@ export function AiAnalysisPage() {
     setIsLoading(true);
     setResult(null);
     toast.info('Menganalisis motif batik Anda...');
-    // Simulate AI analysis by picking a random entry from the dataset
+    // Simulate AI analysis by picking the first entry from the dataset for deterministic results
     setTimeout(() => {
-      const randomIndex = Math.floor(Math.random() * batikDataset.length);
-      const randomBatik = batikDataset[randomIndex];
-      setResult(randomBatik);
+      const firstBatik = batikDataset[0];
+      setResult(firstBatik);
       setIsLoading(false);
       toast.success('Analisis berhasil diselesaikan!');
     }, 2500);

@@ -104,6 +104,7 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
       id: crypto.randomUUID(),
       name: body.name,
       motif: body.motif,
+      origin: body.origin,
       history: body.history,
       imageUrl: body.imageUrl,
       artisanId: user.id,

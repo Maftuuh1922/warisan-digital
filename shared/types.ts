@@ -22,6 +22,7 @@ export interface Batik {
   id: string;
   name: string;
   motif: string;
+  origin: string;
   history: string;
   imageUrl: string;
   artisanId: string;

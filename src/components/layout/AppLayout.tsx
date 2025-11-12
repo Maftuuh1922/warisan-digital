@@ -20,11 +20,6 @@ const pageVariants = {
     y: -20,
   },
 };
-const pageTransition = {
-  type: "tween",
-  ease: "easeInOut",
-  duration: 0.5,
-};
 export function AppLayout({ children }: AppLayoutProps): JSX.Element {
   const { pathname } = useLocation();
   return (
@@ -38,7 +33,7 @@ export function AppLayout({ children }: AppLayoutProps): JSX.Element {
             animate="in"
             exit="out"
             variants={pageVariants}
-            transition={pageTransition}
+            transition={{ type: "tween", ease: "easeInOut", duration: 0.5 }}
           >
             {children}
           </motion.div>

@@ -46,15 +46,16 @@ export class PengrajinDetailsEntity extends IndexedEntity<PengrajinDetails> {
 export class BatikEntity extends IndexedEntity<Batik> {
   static readonly entityName = "batik";
   static readonly indexName = "batiks";
-  static readonly initialState: Batik = { id: "", name: "", motif: "", history: "", imageUrl: "", artisanId: "", artisanName: "" };
+  static readonly initialState: Batik = { id: "", name: "", motif: "", history: "", imageUrl: "", artisanId: "", artisanName: "", origin: "" };
   static readonly seedData: ReadonlyArray<Batik> = REAL_BATIK_DATASET.map((b, index) => ({
     id: `real-batik-${index + 1}`,
     name: b.nama_batik,
-    motif: b.daerah_batik, // Using region as motif for seeding
+    motif: b.nama_batik.split(' ')[0],
     history: b.makna_batik,
     imageUrl: b.link_batik,
     artisanId: 'system-seeded',
     artisanName: 'Warisan Budaya',
+    origin: b.daerah_batik,
   }));
   static override keyOf(state: Batik): string {
     return state.id;
