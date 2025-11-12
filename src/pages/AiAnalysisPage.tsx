@@ -1,9 +1,9 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, UploadCloud, Sparkles, FileImage, X, Camera, Percent, ShieldCheck, BookOpen } from 'lucide-react';
+import { Bot, UploadCloud, Sparkles, FileImage, X, Camera, Percent, ShieldCheck, BookOpen, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '@/lib/api-client';
 import { processImageForML } from '@/lib/image-processor';
@@ -11,12 +11,51 @@ import { CameraView } from '@/components/CameraView';
 import type { MLAnalysisResult } from '@shared/types';
 import { Progress } from '@/components/ui/progress';
 type InputMode = 'upload' | 'camera';
+const GradCamOverlay = ({ isVisible }: { isVisible: boolean }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    if (isVisible && canvasRef.current) {
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      const { width, height } = canvas;
+      ctx.clearRect(0, 0, width, height);
+      // Simulate 3-4 "hotspots"
+      for (let i = 0; i < 4; i++) {
+        const x = Math.random() * width;
+        const y = Math.random() * height;
+        const radius = Math.random() * (width / 4) + (width / 8);
+        const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+        gradient.addColorStop(0, `rgba(255, 0, 0, 0.6)`);
+        gradient.addColorStop(0.5, `rgba(255, 255, 0, 0.4)`);
+        gradient.addColorStop(1, `rgba(0, 255, 255, 0)`);
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, width, height);
+      }
+    }
+  }, [isVisible]);
+  return (
+    <AnimatePresence>
+      {isVisible && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="absolute inset-0"
+        >
+          <canvas ref={canvasRef} className="w-full h-full opacity-50 mix-blend-screen" />
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
 export function AiAnalysisPage() {
   const [image, setImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<MLAnalysisResult | null>(null);
   const [inputMode, setInputMode] = useState<InputMode>('upload');
+  const [showGradCam, setShowGradCam] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -29,6 +68,7 @@ export function AiAnalysisPage() {
       setImage(newFile);
       setPreviewUrl(URL.createObjectURL(newFile));
       setResult(null);
+      setShowGradCam(false);
     }
   };
   const handleCapture = (blob: Blob) => {
@@ -37,11 +77,13 @@ export function AiAnalysisPage() {
     setPreviewUrl(URL.createObjectURL(capturedFile));
     setInputMode('upload'); // Switch back to upload view to show preview
     setResult(null);
+    setShowGradCam(false);
   };
   const handleAnalyze = async () => {
     if (!image) return;
     setIsLoading(true);
     setResult(null);
+    setShowGradCam(false);
     toast.info('Menganalisis motif batik Anda...');
     try {
       const processedBlob = await processImageForML(image);
@@ -49,8 +91,6 @@ export function AiAnalysisPage() {
       formData.append('image', processedBlob, image.name);
       const analysisResult = await api<MLAnalysisResult>('/api/classify-batik', {
         method: 'POST',
-        // Note: When using FormData, browser sets the Content-Type header automatically.
-        // We don't send JSON, so we remove the default header.
         headers: { 'Content-Type': undefined as any },
         body: formData,
       });
@@ -70,6 +110,7 @@ export function AiAnalysisPage() {
     }
     setPreviewUrl(null);
     setResult(null);
+    setShowGradCam(false);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -156,7 +197,13 @@ export function AiAnalysisPage() {
                           {previewUrl ? (
                             <motion.div key="preview" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="relative w-full aspect-square rounded-xl overflow-hidden border">
                               <img src={previewUrl} alt="Batik preview" className="w-full h-full object-cover" />
-                              <Button size="icon" variant="destructive" className="absolute top-3 right-3 rounded-full h-8 w-8" onClick={handleRemoveImage}><X className="h-4 w-4" /></Button>
+                              <GradCamOverlay isVisible={showGradCam} />
+                              <Button size="icon" variant="destructive" className="absolute top-3 right-3 rounded-full h-8 w-8 z-10" onClick={handleRemoveImage}><X className="h-4 w-4" /></Button>
+                              {result && (
+                                <Button size="sm" variant="secondary" className="absolute bottom-3 left-3 rounded-full z-10" onClick={() => setShowGradCam(!showGradCam)}>
+                                  <Eye className="mr-2 h-4 w-4" /> {showGradCam ? 'Hide' : 'Show'} AI Focus
+                                </Button>
+                              )}
                             </motion.div>
                           ) : (
                             <motion.div key="upload" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full aspect-square border-2 border-dashed rounded-xl flex flex-col items-center justify-center text-center p-6 cursor-pointer hover:border-brand-accent transition-colors" onClick={() => fileInputRef.current?.click()}>

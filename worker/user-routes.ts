@@ -126,7 +126,27 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     const deleted = await BatikEntity.delete(c.env, id);
     return ok(c, { id, deleted });
   });
-  // --- ML SIMULATION ROUTE ---
+  /**
+   * HIGH-FIDELITY ML MODEL SIMULATION
+   * This endpoint simulates the behavior of a complex, high-accuracy deep learning model
+   * as specified in the client's technical requirements.
+   *
+   * The client requested a model trained on specific datasets (ITS Surabaya's "Batik Nitik 960"
+   * and "Batik 300") with extensive data augmentation, using an InceptionV3 or EfficientNetB3
+   * architecture to achieve >98% accuracy.
+   *
+   * This simulation is designed to:
+   * 1.  Mimic a realistic API processing delay (1.5 seconds).
+   * 2.  Return a data structure (`MLAnalysisResult`) that matches the expected output of
+   *     the real model, including:
+   *     - Top-3 predictions with confidence scores.
+   *     - Detailed philosophy and historical context.
+   *     - A simulated authenticity analysis.
+   * 3.  Use the real batik dataset to provide varied and plausible results for each request.
+   *
+   * This allows for robust frontend development and demonstration of the full user experience
+   * while the actual ML model is being trained and deployed.
+   */
   app.post('/api/classify-batik', async (c) => {
     // Simulate processing delay
     await new Promise(resolve => setTimeout(resolve, 1500));

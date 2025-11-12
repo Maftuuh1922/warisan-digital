@@ -70,4 +70,12 @@
     background-image: url('https://www.transparenttextures.com/patterns/subtle-waves.png');
     background-color: hsl(var(--brand-primary));
   }
+  .batik-parang-rusak-subtle {
+    background-image: url('https://www.transparenttextures.com/patterns/pinstripe.png');
+    background-color: hsl(var(--background));
+  }
+  .batik-kawung-subtle {
+    background-image: url('https://www.transparenttextures.com/patterns/circles-squares.png');
+    background-color: hsl(var(--background));
+  }
 }
