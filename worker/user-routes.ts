@@ -2,7 +2,8 @@ import { Hono } from "hono";
 import type { Env } from './core-utils';
 import { UserEntity, BatikEntity, PengrajinDetailsEntity } from "./entities";
 import { ok, bad, notFound } from './core-utils';
-import type { User, Batik, PengrajinDetails } from "@shared/types";
+import type { User, Batik, PengrajinDetails, MLAnalysisResult, MLPrediction } from "@shared/types";
+import { REAL_BATIK_DATASET } from "@shared/batik-real-dataset";
 export function userRoutes(app: Hono<{ Bindings: Env }>) {
   // --- AUTH ROUTES ---
   app.post('/api/auth/login', async (c) => {
@@ -124,5 +125,48 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     const id = c.req.param('id');
     const deleted = await BatikEntity.delete(c.env, id);
     return ok(c, { id, deleted });
+  });
+  // --- ML SIMULATION ROUTE ---
+  app.post('/api/classify-batik', async (c) => {
+    // Simulate processing delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    // Shuffle the dataset to get random results
+    const shuffled = [...REAL_BATIK_DATASET].sort(() => 0.5 - Math.random());
+    const top3 = shuffled.slice(0, 3);
+    if (top3.length < 3) {
+      return bad(c, 'Not enough data in dataset to simulate.');
+    }
+    const topPrediction: MLPrediction = {
+      motif: top3[0].nama_batik,
+      confidence: Math.random() * (0.98 - 0.85) + 0.85, // 85% - 98%
+      class_id: Math.floor(Math.random() * 100),
+    };
+    const otherPredictions: MLPrediction[] = [
+      {
+        motif: top3[1].nama_batik,
+        confidence: Math.random() * (topPrediction.confidence - 0.1 - 0.6) + 0.6, // 60% - (top - 10%)
+        class_id: Math.floor(Math.random() * 100),
+      },
+      {
+        motif: top3[2].nama_batik,
+        confidence: Math.random() * (topPrediction.confidence - 0.2 - 0.5) + 0.5, // 50% - (top - 20%)
+        class_id: Math.floor(Math.random() * 100),
+      },
+    ];
+    const result: MLAnalysisResult = {
+      top_prediction: topPrediction,
+      other_predictions: otherPredictions,
+      pattern_type: Math.random() > 0.5 ? 'Geometric' : 'Non-Geometric',
+      philosophy: {
+        description: top3[0].makna_batik,
+        historical_context: `Batik ${top3[0].nama_batik} berasal dari daerah ${top3[0].daerah_batik} dan merupakan bagian penting dari warisan budaya lokal.`,
+      },
+      authenticity: {
+        label: 'Likely Authentic',
+        confidence: Math.random() * (0.99 - 0.90) + 0.90, // 90% - 99%
+        features_analyzed: ["Color Palette Consistency", "Wax 'Crackle' Effect", "Motif Symmetry Analysis", "Fabric Weave Pattern"],
+      },
+    };
+    return ok(c, result);
   });
 }

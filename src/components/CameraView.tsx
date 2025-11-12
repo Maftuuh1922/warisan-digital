@@ -38,20 +38,6 @@ export function CameraView({ onCapture, onClose }: CameraViewProps) {
               playsInline
               className="w-full h-full object-cover"
             />
-            <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-              <defs>
-                <mask id="camera-mask">
-                  <rect width="100" height="100" fill="white" />
-                  <rect x="20" y="20" width="60" height="60" rx="5" fill="black" />
-                </mask>
-              </defs>
-              <rect width="100" height="100" fill="rgba(0,0,0,0.5)" mask="url(#camera-mask)" />
-              <rect x="20" y="20" width="60" height="60" rx="5" fill="transparent" stroke="white" strokeWidth="0.5" strokeDasharray="2 2" />
-              <path d="M 25 20 L 20 20 L 20 25" stroke="white" strokeWidth="2" fill="none" />
-              <path d="M 75 20 L 80 20 L 80 25" stroke="white" strokeWidth="2" fill="none" />
-              <path d="M 25 80 L 20 80 L 20 75" stroke="white" strokeWidth="2" fill="none" />
-              <path d="M 75 80 L 80 80 L 80 75" stroke="white" strokeWidth="2" fill="none" />
-            </svg>
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
               <Button size="icon" className="rounded-full w-16 h-16" onClick={handleCapture}>
                 <Camera className="h-8 w-8" />

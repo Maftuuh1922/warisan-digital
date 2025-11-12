@@ -87,7 +87,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             Halo, <span className="text-foreground">{user?.name}</span>
           </div>
         </header>
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto batik-texture-subtle">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto batik-parang-subtle">
           {children}
         </main>
       </div>

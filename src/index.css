@@ -62,4 +62,12 @@
     background-image: url('https://www.transparenttextures.com/patterns/subtle-batik.png');
     background-color: hsl(var(--background));
   }
+  .batik-parang-subtle {
+    background-image: url('https://www.transparenttextures.com/patterns/inspiration-geometry.png');
+    background-color: hsl(var(--background));
+  }
+  .batik-megamendung-subtle {
+    background-image: url('https://www.transparenttextures.com/patterns/subtle-waves.png');
+    background-color: hsl(var(--brand-primary));
+  }
 }

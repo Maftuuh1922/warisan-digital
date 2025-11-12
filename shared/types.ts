@@ -28,3 +28,25 @@ export interface Batik {
   artisanId: string;
   artisanName: string;
 }
+// New types for ML Analysis Result
+export interface MLPrediction {
+  motif: string;
+  confidence: number; // e.g., 0.95
+  class_id: number;
+}
+export interface Philosophy {
+  description: string;
+  historical_context: string;
+}
+export interface Authenticity {
+  label: 'Authentic' | 'Likely Authentic' | 'Indeterminate' | 'Likely Counterfeit';
+  confidence: number;
+  features_analyzed: string[];
+}
+export interface MLAnalysisResult {
+  top_prediction: MLPrediction;
+  other_predictions: MLPrediction[];
+  pattern_type: 'Geometric' | 'Non-Geometric' | 'Indeterminate';
+  philosophy: Philosophy;
+  authenticity: Authenticity;
+}
