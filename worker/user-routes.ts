@@ -76,6 +76,7 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
   });
   // --- BATIK ROUTES (PUBLIC & ARTISAN) ---
   app.get('/api/batiks', async (c) => {
+    await BatikEntity.ensureSeed(c.env);
     const { items } = await BatikEntity.list(c.env);
     return ok(c, { items });
   });

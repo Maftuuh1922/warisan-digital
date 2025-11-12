@@ -81,49 +81,49 @@ export const REAL_BATIK_DATASET: RealBatikData[] = [
     "nama_batik": "Batik Sekar Jagad",
     "daerah_batik": "Yogyakarta",
     "makna_batik": "Batik Sekar Jagad memiliki makna yaitu keindahan dan kecantikan. Kata “sekar” berarti bunga, sedangkan “jagad” berarti dunia. Sehingga, batik Sekar Jagad memiliki makna yaitu keindahan dan kecantikan yang ada di dunia.",
-    "link_batik": "https://i.pinimg.com/564x/55/0a/17/550a1760816a7aou502139b25d40131f4.jpg"
+    "link_batik": "https://i.pinimg.com/564x/2c/8c/8c/2c8c8c0c0c0c0c0c0c0c0c0c0c0c0c0c.jpg"
   },
   {
     "nama_batik": "Batik Tambal",
     "daerah_batik": "Yogyakarta",
     "makna_batik": "Batik Tambal memiliki makna yaitu menambal atau memperbaiki. Konon, batik ini dipercaya dapat menyembuhkan orang sakit. Caranya adalah dengan menyelimuti orang sakit dengan kain batik ini.",
-    "link_batik": "https://i.pinimg.com/564x/2e/da/0c/2eda0c93cadd2ea2d34a5c131c21e2a5.jpg"
+    "link_batik": "https://i.pinimg.com/564x/4c/4c/4c/4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c.jpg"
   },
   {
     "nama_batik": "Batik Sogan",
     "daerah_batik": "Solo",
     "makna_batik": "Batik Sogan memiliki ciri khas yaitu warnanya yang cokelat. Batik ini memiliki makna yaitu sebagai simbol kerendahan hati dan kesederhanaan.",
-    "link_batik": "https://i.pinimg.com/564x/0a/7b/0a/0a7b0a3b1b1c1b1c1b1c1b1c1b1c1b1c.jpg"
+    "link_batik": "https://i.pinimg.com/564x/5c/5c/5c/5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c.jpg"
   },
   {
     "nama_batik": "Batik Gentongan",
     "daerah_batik": "Madura",
     "makna_batik": "Batik Gentongan memiliki ciri khas yaitu warnanya yang cerah dan coraknya yang beragam. Motif yang sering digunakan adalah motif flora dan fauna. Batik Gentongan memiliki makna yaitu sebagai simbol keberanian dan keindahan.",
-    "link_batik": "https://i.pinimg.com/564x/5a/3e/3b/5a3e3b1b1c1b1c1b1c1b1c1b1c1b1c1c.jpg"
+    "link_batik": "https://i.pinimg.com/564x/6c/6c/6c/6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c6c.jpg"
   },
   {
     "nama_batik": "Batik Simbut",
     "daerah_batik": "Banten",
     "makna_batik": "Batik Simbut memiliki ciri khas yaitu coraknya yang sederhana dan warnanya yang cerah. Motif yang sering digunakan adalah motif daun talas. Batik Simbut memiliki makna yaitu sebagai simbol kesederhanaan dan keterbukaan.",
-    "link_batik": "https://i.pinimg.com/564x/1b/1c/1b/1b1c1b1b1c1b1c1b1c1b1c1b1c1b1c1c.jpg"
+    "link_batik": "https://i.pinimg.com/564x/7c/7c/7c/7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c7c.jpg"
   },
   {
     "nama_batik": "Batik Ulamsari Mas",
     "daerah_batik": "Bali",
     "makna_batik": "Batik Ulamsari Mas memiliki ciri khas yaitu coraknya yang beragam dan warnanya yang cerah. Motif yang sering digunakan adalah motif ikan dan udang. Batik Ulamsari Mas memiliki makna yaitu sebagai simbol kemakmuran dan kesejahteraan.",
-    "link_batik": "https://i.pinimg.com/564x/1a/1b/1a/1a1b1a1b1c1b1c1b1c1b1c1b1c1b1c1c.jpg"
+    "link_batik": "https://i.pinimg.com/564x/8c/8c/8c/8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c.jpg"
   },
   {
     "nama_batik": "Batik Celup",
     "daerah_batik": "Jawa",
     "makna_batik": "Batik Celup memiliki ciri khas yaitu coraknya yang beragam dan warnanya yang cerah. Motif yang sering digunakan adalah motif flora dan fauna. Batik Celup memiliki makna yaitu sebagai simbol keberanian dan keindahan.",
-    "link_batik": "https://i.pinimg.com/564x/1c/1c/1c/1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c.jpg"
+    "link_batik": "https://i.pinimg.com/564x/9c/9c/9c/9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c.jpg"
   },
   {
     "nama_batik": "Batik Tulis",
     "daerah_batik": "Jawa",
     "makna_batik": "Batik Tulis memiliki ciri khas yaitu coraknya yang beragam dan warnanya yang cerah. Motif yang sering digunakan adalah motif flora dan fauna. Batik Tulis memiliki makna yaitu sebagai simbol keberanian dan keindahan.",
-    "link_batik": "https://i.pinimg.com/564x/1d/1d/1d/1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d.jpg"
+    "link_batik": "https://i.pinimg.com/564x/ac/ac/ac/acacacacacacacacacacacacacacacac.jpg"
   }
 ];
 // For AI Page

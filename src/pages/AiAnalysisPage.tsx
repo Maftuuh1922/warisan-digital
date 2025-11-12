@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bot, UploadCloud, Sparkles, FileImage, X } from 'lucide-react';
 import { toast } from 'sonner';
-import { batikDataset, type BatikInfo } from '@/lib/batik-dataset';
+import { batikDataset, type BatikInfo } from '@shared/batik-real-dataset';
 export function AiAnalysisPage() {
   const [image, setImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
