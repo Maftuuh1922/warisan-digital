@@ -1,12 +1,12 @@
 import { IndexedEntity } from "./core-utils";
 import type { User, Batik, PengrajinDetails } from "@shared/types";
-// USER ENTITY
-export class UserEntity extends IndexedEntity<User> {
-  static readonly entityName = "user";
-  static readonly indexName = "users";
-  static readonly initialState: User = { id: "", name: "", email: "", role: 'artisan', status: 'pending' };
-  static keyOf(state: User): string {
-    // Use email as a unique key for lookup during login
+
+
+interface Env {
+  id?: string | number;
+
+  [key: string]: unknown;
+}export class UserEntity extends IndexedEntity<User> {static readonly entityName = "user";static readonly indexName = "users";static readonly initialState: User = { id: "", name: "", email: "", role: 'artisan', status: 'pending' };static keyOf(state: User): string {
     return state.email.toLowerCase();
   }
   static async findByEmail(env: Env, email: string): Promise<UserEntity | null> {
@@ -17,7 +17,7 @@ export class UserEntity extends IndexedEntity<User> {
     return null;
   }
 }
-// PENGRAJIN DETAILS ENTITY
+
 export class PengrajinDetailsEntity extends IndexedEntity<PengrajinDetails> {
   static readonly entityName = "pengrajin_details";
   static readonly indexName = "pengrajin_details_idx";
@@ -26,7 +26,7 @@ export class PengrajinDetailsEntity extends IndexedEntity<PengrajinDetails> {
     return state.userId;
   }
 }
-// BATIK ENTITY
+
 export class BatikEntity extends IndexedEntity<Batik> {
   static readonly entityName = "batik";
   static readonly indexName = "batiks";
