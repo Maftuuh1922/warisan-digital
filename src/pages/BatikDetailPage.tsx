@@ -6,28 +6,34 @@ import { ArrowLeft, MapPin, MessageCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api-client';
-import type { Batik } from '@shared/types';
+import type { Batik, PengrajinDetails } from '@shared/types';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ArtisanWithDetails } from '@/stores/artisanStore';
 export function BatikDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [batik, setBatik] = useState<Batik | null>(null);
+  const [artisan, setArtisan] = useState<ArtisanWithDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
-    const fetchBatik = async () => {
+    const fetchBatikDetails = async () => {
       if (!id) return;
       setIsLoading(true);
       setError(null);
       try {
-        const data = await api<Batik>(`/api/batiks/${id}`);
-        setBatik(data);
+        const batikData = await api<Batik>(`/api/batiks/${id}`);
+        setBatik(batikData);
+        if (batikData.artisanId) {
+          const artisanData = await api<ArtisanWithDetails>(`/api/artisans/${batikData.artisanId}`);
+          setArtisan(artisanData);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load batik details.');
       } finally {
         setIsLoading(false);
       }
     };
-    fetchBatik();
+    fetchBatikDetails();
   }, [id]);
   if (isLoading) {
     return (
@@ -67,6 +73,8 @@ export function BatikDetailPage() {
       </AppLayout>
     );
   }
+  const gmapsUrl = artisan?.details?.address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(artisan.details.address)}` : '#';
+  const whatsappUrl = artisan?.details?.phoneNumber ? `https://wa.me/${artisan.details.phoneNumber.replace(/\D/g, '')}` : '#';
   return (
     <AppLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -103,19 +111,25 @@ export function BatikDetailPage() {
                   <h2 className="text-xl font-semibold text-foreground mb-2">Sejarah & Makna Motif</h2>
                   <p className="text-base text-foreground/80 leading-relaxed">{batik.history}</p>
                 </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-foreground mb-3">Detail Pengrajin</h3>
-                  <div className="flex items-center space-x-4">
-                    <Button className="bg-brand-accent hover:bg-brand-accent/90">
-                      <MapPin className="mr-2 h-4 w-4" />
-                      Lihat Lokasi
-                    </Button>
-                    <Button variant="outline">
-                      <MessageCircle className="mr-2 h-4 w-4" />
-                      Hubungi via WhatsApp
-                    </Button>
+                {artisan?.details && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-foreground mb-3">Detail Pengrajin</h3>
+                    <div className="flex items-center space-x-4">
+                      <Button asChild className="bg-brand-accent hover:bg-brand-accent/90">
+                        <a href={gmapsUrl} target="_blank" rel="noopener noreferrer">
+                          <MapPin className="mr-2 h-4 w-4" />
+                          Lihat Lokasi
+                        </a>
+                      </Button>
+                      <Button asChild variant="outline">
+                         <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+                          <MessageCircle className="mr-2 h-4 w-4" />
+                          Hubungi via WhatsApp
+                        </a>
+                      </Button>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </motion.div>
           </div>

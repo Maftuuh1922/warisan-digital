@@ -17,6 +17,8 @@ import { ArtisanDashboardPage } from '@/pages/dashboard/ArtisanDashboardPage';
 import { AdminDashboardPage } from '@/pages/dashboard/AdminDashboardPage';
 import { Toaster } from '@/components/ui/sonner';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { AboutPage } from './pages/AboutPage';
+import { ArtisansPage } from './pages/ArtisansPage';
 const router = createBrowserRouter([
   {
     path: "/",
@@ -26,6 +28,16 @@ const router = createBrowserRouter([
   {
     path: "/batik/:id",
     element: <BatikDetailPage />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/about",
+    element: <AboutPage />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/artisans",
+    element: <ArtisansPage />,
     errorElement: <RouteErrorBoundary />,
   },
   {

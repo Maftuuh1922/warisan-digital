@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,16 +9,23 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { cn } from '@/lib/utils';
 import { useArtisanStore } from '@/stores/artisanStore';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ArtisanDetailModal } from '@/components/dashboard/ArtisanDetailModal';
 export function AdminDashboardPage() {
   const fetchArtisans = useArtisanStore((s) => s.fetchArtisans);
   const artisans = useArtisanStore((s) => s.artisans);
   const isLoading = useArtisanStore((s) => s.isLoading);
   const updateArtisanStatus = useArtisanStore((s) => s.updateArtisanStatus);
+  const fetchArtisanDetails = useArtisanStore((s) => s.fetchArtisanDetails);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   useEffect(() => {
     fetchArtisans();
   }, [fetchArtisans]);
   const handleStatusChange = (userId: string, status: 'verified' | 'rejected') => {
     updateArtisanStatus(userId, status);
+  };
+  const handleViewDetails = (userId: string) => {
+    fetchArtisanDetails(userId);
+    setIsDetailModalOpen(true);
   };
   return (
     <DashboardLayout>
@@ -49,7 +56,7 @@ export function AdminDashboardPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {isLoading ? (
+              {isLoading && !artisans.length ? (
                 [...Array(5)].map((_, i) => (
                   <TableRow key={i}>
                     <TableCell><Skeleton className="h-5 w-32" /></TableCell>
@@ -85,7 +92,7 @@ export function AdminDashboardPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem>View Details</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleViewDetails(artisan.id)}>View Details</DropdownMenuItem>
                           {artisan.status !== 'verified' && (
                             <DropdownMenuItem onClick={() => handleStatusChange(artisan.id, 'verified')}>Approve</DropdownMenuItem>
                           )}
@@ -102,6 +109,7 @@ export function AdminDashboardPage() {
           </Table>
         </CardContent>
       </Card>
+      <ArtisanDetailModal isOpen={isDetailModalOpen} onClose={() => setIsDetailModalOpen(false)} />
     </DashboardLayout>
   );
 }

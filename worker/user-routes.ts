@@ -34,6 +34,7 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
       status: 'pending',
     };
     const newDetails: PengrajinDetails = {
+      id: userId, // Match PengrajinDetails ID with User ID
       userId,
       storeName,
       address,
@@ -55,13 +56,24 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     }));
     return ok(c, { items: artisansWithDetails });
   });
+  app.get('/api/artisans/:id', async (c) => {
+    const userId = c.req.param('id');
+    const allUsers = (await UserEntity.list(c.env)).items;
+    const user = allUsers.find(u => u.id === userId);
+    if (!user) return notFound(c, 'User not found');
+    const detailsEntity = new PengrajinDetailsEntity(c.env, user.id);
+    const details = await detailsEntity.exists() ? await detailsEntity.getState() : undefined;
+    return ok(c, { ...user, details });
+  });
   app.put('/api/artisans/:id/status', async (c) => {
     const userId = c.req.param('id');
     const { status } = await c.req.json<{ status: 'verified' | 'rejected' }>();
     if (!status) return bad(c, 'Status is required');
-    const user = (await UserEntity.list(c.env)).items.find(u => u.id === userId);
+    const allUsers = (await UserEntity.list(c.env)).items;
+    const user = allUsers.find(u => u.id === userId);
     if (!user) return notFound(c, 'User not found');
     const userEntity = new UserEntity(c.env, user.email);
+    if (!(await userEntity.exists())) return notFound(c, 'User entity not found by email key.');
     await userEntity.patch({ status });
     return ok(c, await userEntity.getState());
   });
@@ -82,11 +94,8 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     return ok(c, artisanBatiks);
   });
   // --- PROTECTED ARTISAN BATIK CRUD ---
-  // Note: In a real app, these would be protected by middleware checking JWT/session
   app.post('/api/batiks', async (c) => {
     const body = await c.req.json();
-    // This is a simplification. A real app would get artisanId from the authenticated user session.
-    // We'll find the user by email from the authStore for this mock-backend phase.
     const authHeader = c.req.header('X-User-Email');
     if (!authHeader) return bad(c, 'Auth header missing', 401);
     const userEntity = await UserEntity.findByEmail(c.env, authHeader);

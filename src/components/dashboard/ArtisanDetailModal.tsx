@@ -1,8 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useArtisanStore, type ArtisanWithDetails } from '@/stores/artisanStore';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Mail, Store, MapPin, Phone, FileText, ExternalLink } from 'lucide-react';
-import { Button } from '../ui/button';
+import { Mail, Store, MapPin, Phone } from 'lucide-react';
 interface ArtisanDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -10,23 +9,12 @@ interface ArtisanDetailModalProps {
 export function ArtisanDetailModal({ isOpen, onClose }: ArtisanDetailModalProps) {
   const selectedArtisan = useArtisanStore((s) => s.selectedArtisan);
   const isLoading = useArtisanStore((s) => s.isLoading);
-  const DetailRow = ({ icon: Icon, label, value, isLink = false }: { icon: React.ElementType, label: string, value?: string, isLink?: boolean }) => (
+  const DetailRow = ({ icon: Icon, label, value }: { icon: React.ElementType, label: string, value?: string }) => (
     <div className="flex items-start space-x-3">
-      <Icon className="h-5 w-5 text-muted-foreground mt-1 flex-shrink-0" />
-      <div className="flex flex-col overflow-hidden">
+      <Icon className="h-5 w-5 text-muted-foreground mt-1" />
+      <div className="flex flex-col">
         <span className="text-sm font-medium text-muted-foreground">{label}</span>
-        {isLink && value ? (
-          <a
-            href={value}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-base text-brand-accent hover:underline truncate inline-flex items-center"
-          >
-            {value} <ExternalLink className="h-4 w-4 ml-1 flex-shrink-0" />
-          </a>
-        ) : (
-          <span className="text-base text-foreground">{value || 'N/A'}</span>
-        )}
+        <span className="text-base text-foreground">{value || 'N/A'}</span>
       </div>
     </div>
   );
@@ -46,7 +34,6 @@ export function ArtisanDetailModal({ isOpen, onClose }: ArtisanDetailModalProps)
               <Skeleton className="h-5 w-1/2" />
               <Skeleton className="h-5 w-2/3" />
               <Skeleton className="h-5 w-3/4" />
-              <Skeleton className="h-5 w-full" />
             </div>
           ) : (
             <>
@@ -56,12 +43,6 @@ export function ArtisanDetailModal({ isOpen, onClose }: ArtisanDetailModalProps)
                 <DetailRow icon={Store} label="Store Name" value={selectedArtisan.details?.storeName} />
                 <DetailRow icon={MapPin} label="Store Address" value={selectedArtisan.details?.address} />
                 <DetailRow icon={Phone} label="Phone Number" value={selectedArtisan.details?.phoneNumber} />
-                <DetailRow 
-                  icon={FileText} 
-                  label="Qualification Document" 
-                  value={selectedArtisan.details?.qualificationDocumentUrl} 
-                  isLink={!!selectedArtisan.details?.qualificationDocumentUrl}
-                />
               </div>
             </>
           )}
