@@ -58,9 +58,9 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
   });
   app.get('/api/artisans/:id', async (c) => {
     const userId = c.req.param('id');
-    const allUsers = (await UserEntity.list(c.env)).items;
-    const user = allUsers.find(u => u.id === userId);
-    if (!user) return notFound(c, 'User not found');
+    const userEntity = await UserEntity.findById(c.env, userId);
+    if (!userEntity) return notFound(c, 'User not found');
+    const user = await userEntity.getState();
     const detailsEntity = new PengrajinDetailsEntity(c.env, user.id);
     const details = await detailsEntity.exists() ? await detailsEntity.getState() : undefined;
     return ok(c, { ...user, details });
@@ -69,11 +69,8 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     const userId = c.req.param('id');
     const { status } = await c.req.json<{ status: 'verified' | 'rejected' }>();
     if (!status) return bad(c, 'Status is required');
-    const allUsers = (await UserEntity.list(c.env)).items;
-    const user = allUsers.find(u => u.id === userId);
-    if (!user) return notFound(c, 'User not found');
-    const userEntity = new UserEntity(c.env, user.email);
-    if (!(await userEntity.exists())) return notFound(c, 'User entity not found by email key.');
+    const userEntity = await UserEntity.findById(c.env, userId);
+    if (!userEntity) return notFound(c, 'User not found');
     await userEntity.patch({ status });
     return ok(c, await userEntity.getState());
   });

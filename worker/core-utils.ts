@@ -224,13 +224,15 @@ export class Index<T extends string> extends Entity<unknown> {
     return this.stub.indexRemoveBatch(itemsToRemove);
   }
 
-  async clear(): Promise<void> { await this.stub.indexDrop(this.key()); }
-
-  async page(cursor?: string | null, limit?: number): Promise<{ items: T[]; next: string | null }> {
+  async clear(): Promise<void> { await this.stub.indexDrop(this.key()); }  async page(cursor?: string | null, limit?: number): Promise<{ items: T[]; next: string | null }> {
     const { keys, next } = await this.stub.listPrefix('i:', cursor ?? null, limit);
-    return { items: keys.map(k => k.slice(2) as T), next };
+    const items = keys.map(k => {
+      const value = k.slice(2);
+      // Handle secondary index format 'key:value'
+      return (value.includes(':') ? value.split(':')[1] : value) as T;
+    });
+    return { items, next };
   }
-
   async list(): Promise<T[]> {
     const { keys } = await this.stub.listPrefix('i:');
     return keys.map(k => k.slice(2) as T);
