@@ -58,27 +58,27 @@ export function ArtisanDashboardPage() {
     <DashboardLayout>
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold">My Batik Collection</h1>
-          <p className="text-muted-foreground">Manage your authentic batik products.</p>
+          <h1 className="text-3xl font-display font-bold">Koleksi Batik Saya</h1>
+          <p className="text-muted-foreground">Kelola produk batik autentik Anda.</p>
         </div>
-        <Button onClick={handleAdd}>
-          <PlusCircle className="mr-2 h-4 w-4" /> Add New Batik
+        <Button onClick={handleAdd} className="rounded-xl">
+          <PlusCircle className="mr-2 h-4 w-4" /> Tambah Batik Baru
         </Button>
       </div>
-      <Card>
+      <Card className="rounded-2xl shadow-card border-none">
         <CardHeader>
-          <CardTitle>Your Products</CardTitle>
-          <CardDescription>A list of all batiks you have registered.</CardDescription>
+          <CardTitle className="font-display">Produk Anda</CardTitle>
+          <CardDescription>Daftar semua batik yang telah Anda daftarkan.</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading && !artisanBatiks.length ? (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="hidden w-[100px] sm:table-cell">Image</TableHead>
-                  <TableHead>Name</TableHead>
+                  <TableHead className="hidden w-[100px] sm:table-cell">Gambar</TableHead>
+                  <TableHead>Nama</TableHead>
                   <TableHead>Motif</TableHead>
-                  <TableHead><span className="sr-only">Actions</span></TableHead>
+                  <TableHead><span className="sr-only">Aksi</span></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -87,7 +87,7 @@ export function ArtisanDashboardPage() {
                     <TableCell className="hidden sm:table-cell"><Skeleton className="h-16 w-16 rounded-md" /></TableCell>
                     <TableCell><Skeleton className="h-5 w-40" /></TableCell>
                     <TableCell><Skeleton className="h-5 w-24" /></TableCell>
-                    <TableCell><Skeleton className="h-8 w-8" /></TableCell>
+                    <TableCell><Skeleton className="h-8 w-8 rounded-full" /></TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -95,19 +95,19 @@ export function ArtisanDashboardPage() {
           ) : !isLoading && artisanBatiks.length === 0 ? (
             <EmptyState
               icon={Palette}
-              title="Your Collection is Empty"
-              description="You haven't added any batik products yet. Add your first creation to get started."
-              actionText="Add New Batik"
+              title="Koleksi Anda Kosong"
+              description="Anda belum menambahkan produk batik. Tambahkan karya pertama Anda untuk memulai."
+              actionText="Tambah Batik Baru"
               onActionClick={handleAdd}
             />
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="hidden w-[100px] sm:table-cell">Image</TableHead>
-                  <TableHead>Name</TableHead>
+                  <TableHead className="hidden w-[100px] sm:table-cell">Gambar</TableHead>
+                  <TableHead>Nama</TableHead>
                   <TableHead>Motif</TableHead>
-                  <TableHead><span className="sr-only">Actions</span></TableHead>
+                  <TableHead><span className="sr-only">Aksi</span></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -121,17 +121,17 @@ export function ArtisanDashboardPage() {
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button aria-haspopup="true" size="icon" variant="ghost">
+                          <Button aria-haspopup="true" size="icon" variant="ghost" className="rounded-full">
                             <MoreHorizontal className="h-4 w-4" /><span className="sr-only">Toggle menu</span>
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuLabel>Aksi</DropdownMenuLabel>
                           <DropdownMenuItem onClick={() => handleEdit(batik)}>Edit</DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleShowQr(batik)}>
-                            <QrCode className="mr-2 h-4 w-4" />Show QR Code
+                            <QrCode className="mr-2 h-4 w-4" />Lihat QR Code
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleDelete(batik)} className="text-destructive">Delete</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleDelete(batik)} className="text-destructive">Hapus</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>

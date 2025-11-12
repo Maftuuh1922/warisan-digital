@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, LayoutDashboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-// A simple Batik-inspired icon component
+import { useAuthStore } from '@/stores/authStore';
 const BatikIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" stroke="#3E2723" strokeWidth="2" strokeLinejoin="round"/>
@@ -13,6 +13,14 @@ const BatikIcon = () => (
 );
 export function AppHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
   const navLinks = [
     { name: 'Galeri', href: '/galeri' },
     { name: 'Analisis AI', href: '/analisis-ai' },
@@ -42,6 +50,7 @@ export function AppHeader() {
       ))}
     </>
   );
+  const dashboardPath = user?.role === 'admin' ? '/dashboard/admin' : '/dashboard/artisan';
   return (
     <header className="sticky top-0 z-50 w-full bg-card shadow-nav">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -56,8 +65,22 @@ export function AppHeader() {
             <NavItems />
           </nav>
           <div className="hidden md:flex items-center space-x-3">
-            <Button variant="ghost" asChild><Link to="/auth">Login</Link></Button>
-            <Button asChild className="rounded-xl"><Link to="/auth">Daftar</Link></Button>
+            {isAuthenticated ? (
+              <>
+                <Button variant="ghost" asChild className="rounded-xl">
+                  <Link to={dashboardPath}>
+                    <LayoutDashboard className="mr-2 h-4 w-4" />
+                    Dashboard
+                  </Link>
+                </Button>
+                <Button onClick={handleLogout} className="rounded-xl">Logout</Button>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" asChild className="rounded-xl"><Link to="/auth">Login</Link></Button>
+                <Button asChild className="rounded-xl"><Link to="/auth">Daftar</Link></Button>
+              </>
+            )}
           </div>
           <div className="md:hidden flex items-center">
             <Button
@@ -81,8 +104,17 @@ export function AppHeader() {
             <nav className="flex flex-col space-y-4">
               <NavItems isMobile />
               <div className="flex flex-col space-y-2 pt-4 border-t">
-                <Button variant="outline" asChild><Link to="/auth" onClick={() => setMobileMenuOpen(false)}>Login</Link></Button>
-                <Button asChild className="rounded-xl"><Link to="/auth" onClick={() => setMobileMenuOpen(false)}>Daftar</Link></Button>
+                {isAuthenticated ? (
+                  <>
+                    <Button variant="outline" asChild className="rounded-xl"><Link to={dashboardPath} onClick={() => setMobileMenuOpen(false)}>Dashboard</Link></Button>
+                    <Button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="rounded-xl">Logout</Button>
+                  </>
+                ) : (
+                  <>
+                    <Button variant="outline" asChild className="rounded-xl"><Link to="/auth" onClick={() => setMobileMenuOpen(false)}>Login</Link></Button>
+                    <Button asChild className="rounded-xl"><Link to="/auth" onClick={() => setMobileMenuOpen(false)}>Daftar</Link></Button>
+                  </>
+                )}
               </div>
             </nav>
           </motion.div>

@@ -32,27 +32,27 @@ export function AdminDashboardPage() {
     <DashboardLayout>
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold">Artisan Verification</h1>
-          <p className="text-muted-foreground">Review and manage artisan registration requests.</p>
+          <h1 className="text-3xl font-display font-bold">Verifikasi Pengrajin</h1>
+          <p className="text-muted-foreground">Tinjau dan kelola permintaan pendaftaran pengrajin.</p>
         </div>
-        <Button variant="outline" size="icon" onClick={fetchArtisans} disabled={isLoading}>
+        <Button variant="outline" size="icon" onClick={fetchArtisans} disabled={isLoading} className="rounded-xl">
           <RefreshCw className={cn("h-4 w-4", isLoading && "animate-spin")} />
         </Button>
       </div>
-      <Card>
+      <Card className="rounded-2xl shadow-card border-none">
         <CardHeader>
-          <CardTitle>Verification Requests</CardTitle>
-          <CardDescription>A list of all artisans and their verification status.</CardDescription>
+          <CardTitle className="font-display">Permintaan Verifikasi</CardTitle>
+          <CardDescription>Daftar semua pengrajin dan status verifikasi mereka.</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading && !artisans.length ? (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Artisan Name</TableHead>
-                  <TableHead>Store Name</TableHead>
+                  <TableHead>Nama Pengrajin</TableHead>
+                  <TableHead>Nama Toko</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead><span className="sr-only">Actions</span></TableHead>
+                  <TableHead><span className="sr-only">Aksi</span></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -61,7 +61,7 @@ export function AdminDashboardPage() {
                     <TableCell><Skeleton className="h-5 w-32" /></TableCell>
                     <TableCell><Skeleton className="h-5 w-40" /></TableCell>
                     <TableCell><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
-                    <TableCell><Skeleton className="h-8 w-8" /></TableCell>
+                    <TableCell><Skeleton className="h-8 w-8 rounded-full" /></TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -69,17 +69,17 @@ export function AdminDashboardPage() {
           ) : !isLoading && artisans.length === 0 ? (
             <EmptyState
               icon={UserPlus}
-              title="No Pending Requests"
-              description="There are currently no new artisan registration requests to review."
+              title="Tidak Ada Permintaan"
+              description="Saat ini tidak ada permintaan pendaftaran pengrajin baru untuk ditinjau."
             />
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Artisan Name</TableHead>
-                  <TableHead>Store Name</TableHead>
+                  <TableHead>Nama Pengrajin</TableHead>
+                  <TableHead>Nama Toko</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead><span className="sr-only">Actions</span></TableHead>
+                  <TableHead><span className="sr-only">Aksi</span></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -94,7 +94,7 @@ export function AdminDashboardPage() {
                           : artisan.status === 'pending' ? 'secondary'
                           : 'destructive'
                         }
-                        className={cn(artisan.status === 'verified' && 'bg-green-600 text-white')}
+                        className={cn('capitalize', artisan.status === 'verified' && 'bg-green-100 text-green-800 border-green-200')}
                       >
                         {artisan.status}
                       </Badge>
@@ -102,19 +102,19 @@ export function AdminDashboardPage() {
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button aria-haspopup="true" size="icon" variant="ghost" disabled={isLoading}>
+                          <Button aria-haspopup="true" size="icon" variant="ghost" disabled={isLoading} className="rounded-full">
                             <MoreHorizontal className="h-4 w-4" />
                             <span className="sr-only">Toggle menu</span>
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem onClick={() => handleViewDetails(artisan.id)}>View Details</DropdownMenuItem>
+                          <DropdownMenuLabel>Aksi</DropdownMenuLabel>
+                          <DropdownMenuItem onClick={() => handleViewDetails(artisan.id)}>Lihat Detail</DropdownMenuItem>
                           {artisan.status !== 'verified' && (
-                            <DropdownMenuItem onClick={() => handleStatusChange(artisan.id, 'verified')}>Approve</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleStatusChange(artisan.id, 'verified')}>Setujui</DropdownMenuItem>
                           )}
                           {artisan.status !== 'rejected' && (
-                            <DropdownMenuItem onClick={() => handleStatusChange(artisan.id, 'rejected')} className="text-destructive">Reject</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleStatusChange(artisan.id, 'rejected')} className="text-destructive">Tolak</DropdownMenuItem>
                           )}
                         </DropdownMenuContent>
                       </DropdownMenu>

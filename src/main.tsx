@@ -21,6 +21,7 @@ import { AboutPage } from './pages/AboutPage';
 import { ArtisansPage } from './pages/ArtisansPage';
 import { PrintQrPage } from './pages/PrintQrPage';
 import { PlaceholderPage } from './pages/PlaceholderPage';
+import { GaleriPage } from './pages/GaleriPage';
 const router = createBrowserRouter([
   {
     path: "/",
@@ -29,7 +30,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/galeri",
-    element: <PlaceholderPage pageName="Galeri" />,
+    element: <GaleriPage />,
     errorElement: <RouteErrorBoundary />,
   },
   {
