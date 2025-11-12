@@ -78,7 +78,8 @@ function updateWranglerJsonc() {
 
 function runSetupCommands() {
     const commands = [
-    "bun add qrcode.react@^4.0.0"
+    "bun add qrcode.react@^4.0.0",
+    "bun add jsqr-es6"
 ];
     
     if (commands.length === 0) {
