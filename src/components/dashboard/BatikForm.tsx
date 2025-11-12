@@ -12,7 +12,6 @@ import { useEffect } from 'react';
 const batikSchema = z.object({
   name: z.string().min(3, { message: 'Name must be at least 3 characters.' }),
   motif: z.string().min(3, { message: 'Motif must be at least 3 characters.' }),
-  origin: z.string().min(3, { message: 'Origin must be at least 3 characters.' }),
   history: z.string().min(10, { message: 'History must be at least 10 characters.' }),
   imageUrl: z.string().url({ message: 'Please enter a valid image URL.' }),
 });
@@ -30,7 +29,6 @@ export function BatikForm({ isOpen, onClose, onSubmit, batikToEdit, isLoading }:
     defaultValues: {
       name: '',
       motif: '',
-      origin: '',
       history: '',
       imageUrl: '',
     },
@@ -42,7 +40,6 @@ export function BatikForm({ isOpen, onClose, onSubmit, batikToEdit, isLoading }:
       form.reset({
         name: '',
         motif: '',
-        origin: '',
         history: '',
         imageUrl: '',
       });
@@ -83,19 +80,6 @@ export function BatikForm({ isOpen, onClose, onSubmit, batikToEdit, isLoading }:
                   <FormLabel>Motif</FormLabel>
                   <FormControl>
                     <Input placeholder="e.g., Parang" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="origin"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Origin / Region</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., Solo" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

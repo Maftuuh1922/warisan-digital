@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuthStore } from '@/stores/authStore';
 import { toast } from 'sonner';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 const loginSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
   password: z.string().min(1, { message: 'Password is required.' }),
@@ -20,20 +20,30 @@ const registerSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
   password: z.string().min(8, { message: 'Password must be at least 8 characters.' }),
   storeName: z.string().min(2, { message: 'Store name is required.' }),
+  address: z.string().min(5, { message: 'Address is required.' }),
+  phoneNumber: z.string().min(10, { message: 'Valid phone number is required.' }),
 });
 export function AuthPage() {
   const navigate = useNavigate();
   const login = useAuthStore((s) => s.login);
   const registerArtisan = useAuthStore((s) => s.register);
-  const { register: registerLogin, handleSubmit: handleLoginSubmit, formState: { errors: loginErrors } } = useForm<z.infer<typeof loginSchema>>({
+  const isLoading = useAuthStore((s) => s.isLoading);
+  const loginForm = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
+    defaultValues: { email: '', password: '' },
   });
-  const { register: registerRegister, handleSubmit: handleRegisterSubmit, formState: { errors: registerErrors } } = useForm<z.infer<typeof registerSchema>>({
+  const registerForm = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
+    defaultValues: { name: '', email: '', password: '', storeName: '', address: '', phoneNumber: '' },
   });
-  const onLogin = (data: z.infer<typeof loginSchema>) => {
-    const user = login(data.email);
+  const onLogin = async (data: z.infer<typeof loginSchema>) => {
+    const user = await login(data);
     if (user) {
+      if (user.status !== 'verified') {
+        toast.warning('Your account is not verified yet. Please wait for admin approval.');
+        useAuthStore.getState().logout(); // Log them out as they can't access dashboard
+        return;
+      }
       toast.success(`Welcome back, ${user.name}!`);
       if (user.role === 'admin') {
         navigate('/dashboard/admin');
@@ -41,20 +51,23 @@ export function AuthPage() {
         navigate('/dashboard/artisan');
       }
     } else {
-      toast.error('Invalid credentials. Please try again.');
+      toast.error('Invalid credentials or user not found.');
     }
   };
-  const onRegister = (data: z.infer<typeof registerSchema>) => {
-    registerArtisan({ name: data.name, email: data.email, role: 'artisan' });
-    toast.success('Registration successful! Your application is pending review.');
-    // In a real app, you might redirect or show a success message.
-    // For now, we'll just stay on the page.
+  const onRegister = async (data: z.infer<typeof registerSchema>) => {
+    const newUser = await registerArtisan(data);
+    if (newUser) {
+      toast.success('Registration successful! Your application is pending review by an administrator.');
+      registerForm.reset();
+    } else {
+      toast.error('Registration failed. The email might already be in use.');
+    }
   };
   return (
     <AppLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="py-16 md:py-24 flex items-center justify-center">
-          <Tabs defaultValue="login" className="w-[400px]">
+          <Tabs defaultValue="login" className="w-full max-w-md">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="login">Login</TabsTrigger>
               <TabsTrigger value="register">Register</TabsTrigger>
@@ -66,19 +79,27 @@ export function AuthPage() {
                   <CardDescription>Access your Artisan or Admin dashboard.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={handleLoginSubmit(onLogin)} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="login-email">Email</Label>
-                      <Input id="login-email" type="email" placeholder="admin@warisan.digital" {...registerLogin('email')} />
-                      {loginErrors.email && <p className="text-sm text-destructive">{loginErrors.email.message}</p>}
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="login-password">Password</Label>
-                      <Input id="login-password" type="password" {...registerLogin('password')} defaultValue="password" />
-                      {loginErrors.password && <p className="text-sm text-destructive">{loginErrors.password.message}</p>}
-                    </div>
-                    <Button type="submit" className="w-full bg-brand-accent hover:bg-brand-accent/90">Login</Button>
-                  </form>
+                  <Form {...loginForm}>
+                    <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-4">
+                      <FormField control={loginForm.control} name="email" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl><Input type="email" placeholder="admin@warisan.digital" {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                      <FormField control={loginForm.control} name="password" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Password</FormLabel>
+                          <FormControl><Input type="password" placeholder="••••••••" {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                      <Button type="submit" className="w-full bg-brand-accent hover:bg-brand-accent/90" disabled={isLoading}>
+                        {isLoading ? 'Logging in...' : 'Login'}
+                      </Button>
+                    </form>
+                  </Form>
                 </CardContent>
               </Card>
             </TabsContent>
@@ -89,29 +110,31 @@ export function AuthPage() {
                   <CardDescription>Join our community of verified artisans.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={handleRegisterSubmit(onRegister)} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="register-name">Full Name</Label>
-                      <Input id="register-name" {...registerRegister('name')} />
-                      {registerErrors.name && <p className="text-sm text-destructive">{registerErrors.name.message}</p>}
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="register-email">Email</Label>
-                      <Input id="register-email" type="email" {...registerRegister('email')} />
-                      {registerErrors.email && <p className="text-sm text-destructive">{registerErrors.email.message}</p>}
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="register-store">Store Name</Label>
-                      <Input id="register-store" {...registerRegister('storeName')} />
-                      {registerErrors.storeName && <p className="text-sm text-destructive">{registerErrors.storeName.message}</p>}
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="register-password">Password</Label>
-                      <Input id="register-password" type="password" {...registerRegister('password')} />
-                      {registerErrors.password && <p className="text-sm text-destructive">{registerErrors.password.message}</p>}
-                    </div>
-                    <Button type="submit" className="w-full bg-brand-accent hover:bg-brand-accent/90">Register</Button>
-                  </form>
+                  <Form {...registerForm}>
+                    <form onSubmit={registerForm.handleSubmit(onRegister)} className="space-y-4">
+                      <FormField control={registerForm.control} name="name" render={({ field }) => (
+                        <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                      )} />
+                      <FormField control={registerForm.control} name="email" render={({ field }) => (
+                        <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>
+                      )} />
+                       <FormField control={registerForm.control} name="storeName" render={({ field }) => (
+                        <FormItem><FormLabel>Store Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                      )} />
+                       <FormField control={registerForm.control} name="address" render={({ field }) => (
+                        <FormItem><FormLabel>Store Address</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                      )} />
+                       <FormField control={registerForm.control} name="phoneNumber" render={({ field }) => (
+                        <FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                      )} />
+                      <FormField control={registerForm.control} name="password" render={({ field }) => (
+                        <FormItem><FormLabel>Password</FormLabel><FormControl><Input type="password" {...field} /></FormControl><FormMessage /></FormItem>
+                      )} />
+                      <Button type="submit" className="w-full bg-brand-accent hover:bg-brand-accent/90" disabled={isLoading}>
+                        {isLoading ? 'Registering...' : 'Register'}
+                      </Button>
+                    </form>
+                  </Form>
                 </CardContent>
               </Card>
             </TabsContent>

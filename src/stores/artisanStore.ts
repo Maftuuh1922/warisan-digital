@@ -2,19 +2,16 @@ import { create } from 'zustand';
 import { api } from '@/lib/api-client';
 import type { User, PengrajinDetails } from '@shared/types';
 import { toast } from 'sonner';
-export type ArtisanWithDetails = User & { details?: PengrajinDetails };
+type ArtisanWithDetails = User & { details?: PengrajinDetails };
 interface ArtisanState {
   artisans: ArtisanWithDetails[];
-  selectedArtisan: ArtisanWithDetails | null;
   isLoading: boolean;
   error: string | null;
   fetchArtisans: () => Promise<void>;
-  fetchArtisanDetails: (userId: string) => Promise<void>;
   updateArtisanStatus: (userId: string, status: 'verified' | 'rejected') => Promise<void>;
 }
-export const useArtisanStore = create<ArtisanState>((set) => ({
+export const useArtisanStore = create<ArtisanState>((set, get) => ({
   artisans: [],
-  selectedArtisan: null,
   isLoading: false,
   error: null,
   fetchArtisans: async () => {
@@ -28,19 +25,7 @@ export const useArtisanStore = create<ArtisanState>((set) => ({
       toast.error(errorMessage);
     }
   },
-  fetchArtisanDetails: async (userId: string) => {
-    set({ isLoading: true, error: null, selectedArtisan: null });
-    try {
-      const artisanDetails = await api<ArtisanWithDetails>(`/api/artisans/${userId}`);
-      set({ selectedArtisan: artisanDetails, isLoading: false });
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch artisan details';
-      set({ isLoading: false, error: errorMessage });
-      toast.error(errorMessage);
-    }
-  },
   updateArtisanStatus: async (userId, status) => {
-    // Set loading for the specific item if possible, otherwise global loading is fine for now
     set({ isLoading: true });
     try {
       const updatedArtisan = await api<User>(`/api/artisans/${userId}/status`, {

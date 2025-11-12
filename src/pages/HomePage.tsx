@@ -1,10 +1,24 @@
 import { AppLayout } from '@/components/layout/AppLayout';
 import { BatikCard } from '@/components/BatikCard';
-import { MOCK_BATIK_DATA } from '@/lib/mock-data';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { Search } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useBatikStore } from '@/stores/batikStore';
+import { Skeleton } from '@/components/ui/skeleton';
 export function HomePage() {
+  const fetchAllBatiks = useBatikStore((s) => s.fetchAllBatiks);
+  const batiks = useBatikStore((s) => s.batiks);
+  const isLoading = useBatikStore((s) => s.isLoading);
+  const [searchTerm, setSearchTerm] = useState('');
+  useEffect(() => {
+    fetchAllBatiks();
+  }, [fetchAllBatiks]);
+  const filteredBatiks = batiks.filter(
+    (batik) =>
+      batik.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      batik.motif.toLowerCase().includes(searchTerm.toLowerCase())
+  );
   return (
     <AppLayout>
       <div className="bg-background text-foreground">
@@ -52,15 +66,29 @@ export function HomePage() {
                   <input
                     type="text"
                     placeholder="Cari motif atau nama..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full md:w-64 pl-10 pr-4 py-2 border rounded-md bg-secondary focus:ring-2 focus:ring-brand-accent focus:outline-none"
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {MOCK_BATIK_DATA.map((batik, index) => (
-                  <BatikCard key={batik.id} batik={batik} index={index} />
-                ))}
-              </div>
+              {isLoading && !batiks.length ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {[...Array(6)].map((_, i) => (
+                    <div key={i} className="space-y-4">
+                      <Skeleton className="h-56 w-full" />
+                      <Skeleton className="h-6 w-3/4" />
+                      <Skeleton className="h-4 w-1/2" />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {filteredBatiks.map((batik, index) => (
+                    <BatikCard key={batik.id} batik={batik} index={index} />
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </main>

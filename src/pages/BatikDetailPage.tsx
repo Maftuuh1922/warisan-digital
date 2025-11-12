@@ -1,21 +1,65 @@
 import { useParams, Link } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { MOCK_BATIK_DATA } from '@/lib/mock-data';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, MapPin, MessageCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
+import { api } from '@/lib/api-client';
+import type { Batik } from '@shared/types';
+import { Skeleton } from '@/components/ui/skeleton';
 export function BatikDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const batik = MOCK_BATIK_DATA.find((b) => b.id === id);
-  if (!batik) {
+  const [batik, setBatik] = useState<Batik | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    const fetchBatik = async () => {
+      if (!id) return;
+      setIsLoading(true);
+      setError(null);
+      try {
+        const data = await api<Batik>(`/api/batiks/${id}`);
+        setBatik(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load batik details.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchBatik();
+  }, [id]);
+  if (isLoading) {
+    return (
+      <AppLayout>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="py-16 md:py-24">
+            <div className="mb-8"><Skeleton className="h-10 w-48" /></div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
+              <Skeleton className="aspect-square w-full rounded-lg" />
+              <div className="space-y-6">
+                <Skeleton className="h-6 w-24" />
+                <Skeleton className="h-12 w-3/4" />
+                <Skeleton className="h-7 w-1/2" />
+                <div className="space-y-4 pt-4">
+                  <Skeleton className="h-6 w-40" />
+                  <Skeleton className="h-20 w-full" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
+  if (error || !batik) {
     return (
       <AppLayout>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="py-16 md:py-24 text-center">
             <h1 className="text-3xl font-bold">Batik Not Found</h1>
-            <p className="text-muted-foreground mt-4">The batik you are looking for does not exist.</p>
-            <Button asChild className="mt-8">
+            <p className="text-muted-foreground mt-4">{error || 'The batik you are looking for does not exist.'}</p>
+            <Button asChild className="mt-8 bg-brand-accent hover:bg-brand-accent/90">
               <Link to="/">Back to Gallery</Link>
             </Button>
           </div>
@@ -40,7 +84,7 @@ export function BatikDetailPage() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
-              className="aspect-w-1 aspect-h-1 rounded-lg overflow-hidden"
+              className="aspect-w-1 aspect-h-1 rounded-lg overflow-hidden shadow-lg"
             >
               <img src={batik.imageUrl} alt={batik.name} className="w-full h-full object-cover" />
             </motion.div>
@@ -62,7 +106,7 @@ export function BatikDetailPage() {
                 <div>
                   <h3 className="text-lg font-semibold text-foreground mb-3">Detail Pengrajin</h3>
                   <div className="flex items-center space-x-4">
-                    <Button>
+                    <Button className="bg-brand-accent hover:bg-brand-accent/90">
                       <MapPin className="mr-2 h-4 w-4" />
                       Lihat Lokasi
                     </Button>

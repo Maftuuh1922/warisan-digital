@@ -1,36 +1,119 @@
 import { Hono } from "hono";
 import type { Env } from './core-utils';
-import { UserEntity } from "./entities";
-import { ok, bad, notFound, isStr } from './core-utils';
-import type { User } from "@shared/types";
+import { UserEntity, BatikEntity, PengrajinDetailsEntity } from "./entities";
+import { ok, bad, notFound } from './core-utils';
+import type { User, Batik, PengrajinDetails } from "@shared/types";
 export function userRoutes(app: Hono<{ Bindings: Env }>) {
-  app.get('/api/test', (c) => c.json({ success: true, data: { name: 'Warisan Digital API' }}));
-  // USERS
-  app.get('/api/users', async (c) => {
-    // await UserEntity.ensureSeed(c.env); // Seeding can be enabled if needed
-    const cq = c.req.query('cursor');
-    const lq = c.req.query('limit');
-    const page = await UserEntity.list(c.env, cq ?? null, lq ? Math.max(1, (Number(lq) | 0)) : undefined);
-    return ok(c, page);
+  // --- AUTH ROUTES ---
+  app.post('/api/auth/login', async (c) => {
+    const { email } = await c.req.json<{ email: string }>();
+    if (!email) return bad(c, 'Email is required');
+    const userEntity = await UserEntity.findByEmail(c.env, email);
+    if (!userEntity) {
+      return notFound(c, 'User not found');
+    }
+    // Note: Password check would happen here in a real app
+    return ok(c, await userEntity.getState());
   });
-  app.post('/api/users', async (c) => {
-    const { name, email, role } = (await c.req.json()) as Partial<Pick<User, 'name' | 'email' | 'role'>>;
-    if (!name?.trim() || !email?.trim() || !role) return bad(c, 'name, email, and role are required');
-    const newUser: User = { 
-      id: crypto.randomUUID(), 
-      name: name.trim(),
-      email: email.trim(),
-      role,
-      status: 'pending' // Default status for new users
+  app.post('/api/auth/register', async (c) => {
+    const body = await c.req.json();
+    const { name, email, storeName, address, phoneNumber } = body;
+    if (!name || !email || !storeName || !address || !phoneNumber) {
+      return bad(c, 'Missing required fields for registration.');
+    }
+    const existingUser = await UserEntity.findByEmail(c.env, email);
+    if (existingUser) {
+      return bad(c, 'Email is already in use.');
+    }
+    const userId = crypto.randomUUID();
+    const newUser: User = {
+      id: userId,
+      name,
+      email,
+      role: 'artisan',
+      status: 'pending',
     };
-    return ok(c, await UserEntity.create(c.env, newUser));
+    const newDetails: PengrajinDetails = {
+      userId,
+      storeName,
+      address,
+      phoneNumber,
+      qualificationDocumentUrl: '', // Placeholder
+    };
+    await UserEntity.create(c.env, newUser);
+    await PengrajinDetailsEntity.create(c.env, newDetails);
+    return ok(c, newUser);
   });
-  // DELETE: Users
-  app.delete('/api/users/:id', async (c) => ok(c, { id: c.req.param('id'), deleted: await UserEntity.delete(c.env, c.req.param('id')) }));
-  app.post('/api/users/deleteMany', async (c) => {
-    const { ids } = (await c.req.json()) as { ids?: string[] };
-    const list = ids?.filter(isStr) ?? [];
-    if (list.length === 0) return bad(c, 'ids required');
-    return ok(c, { deletedCount: await UserEntity.deleteMany(c.env, list), ids: list });
+  // --- ARTISAN (ADMIN) ROUTES ---
+  app.get('/api/artisans', async (c) => {
+    const { items: users } = await UserEntity.list(c.env);
+    const artisans = users.filter(u => u.role === 'artisan');
+    const artisansWithDetails = await Promise.all(artisans.map(async (artisan) => {
+      const detailsEntity = new PengrajinDetailsEntity(c.env, artisan.id);
+      const details = await detailsEntity.exists() ? await detailsEntity.getState() : undefined;
+      return { ...artisan, details };
+    }));
+    return ok(c, { items: artisansWithDetails });
+  });
+  app.put('/api/artisans/:id/status', async (c) => {
+    const userId = c.req.param('id');
+    const { status } = await c.req.json<{ status: 'verified' | 'rejected' }>();
+    if (!status) return bad(c, 'Status is required');
+    const user = (await UserEntity.list(c.env)).items.find(u => u.id === userId);
+    if (!user) return notFound(c, 'User not found');
+    const userEntity = new UserEntity(c.env, user.email);
+    await userEntity.patch({ status });
+    return ok(c, await userEntity.getState());
+  });
+  // --- BATIK ROUTES (PUBLIC & ARTISAN) ---
+  app.get('/api/batiks', async (c) => {
+    return ok(c, await BatikEntity.list(c.env));
+  });
+  app.get('/api/batiks/:id', async (c) => {
+    const id = c.req.param('id');
+    const batik = new BatikEntity(c.env, id);
+    if (!(await batik.exists())) return notFound(c, 'Batik not found');
+    return ok(c, await batik.getState());
+  });
+  app.get('/api/batiks/artisan/:artisanId', async (c) => {
+    const artisanId = c.req.param('artisanId');
+    const { items } = await BatikEntity.list(c.env);
+    const artisanBatiks = items.filter(b => b.artisanId === artisanId);
+    return ok(c, artisanBatiks);
+  });
+  // --- PROTECTED ARTISAN BATIK CRUD ---
+  // Note: In a real app, these would be protected by middleware checking JWT/session
+  app.post('/api/batiks', async (c) => {
+    const body = await c.req.json();
+    // This is a simplification. A real app would get artisanId from the authenticated user session.
+    // We'll find the user by email from the authStore for this mock-backend phase.
+    const authHeader = c.req.header('X-User-Email');
+    if (!authHeader) return bad(c, 'Auth header missing', 401);
+    const userEntity = await UserEntity.findByEmail(c.env, authHeader);
+    if (!userEntity) return bad(c, 'User not found', 401);
+    const user = await userEntity.getState();
+    const newBatik: Batik = {
+      id: crypto.randomUUID(),
+      name: body.name,
+      motif: body.motif,
+      history: body.history,
+      imageUrl: body.imageUrl,
+      artisanId: user.id,
+      artisanName: user.name,
+    };
+    return ok(c, await BatikEntity.create(c.env, newBatik));
+  });
+  app.put('/api/batiks/:id', async (c) => {
+    const id = c.req.param('id');
+    const body = await c.req.json();
+    const batik = new BatikEntity(c.env, id);
+    if (!(await batik.exists())) return notFound(c, 'Batik not found');
+    await batik.patch(body);
+    return ok(c, await batik.getState());
+  });
+  app.delete('/api/batiks/:id', async (c) => {
+    const id = c.req.param('id');
+    const deleted = await BatikEntity.delete(c.env, id);
+    return ok(c, { id, deleted });
   });
 }

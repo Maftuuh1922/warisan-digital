@@ -1,23 +1,24 @@
+import { useEffect } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal } from 'lucide-react';
+import { MoreHorizontal, RefreshCw } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { MOCK_USERS, MOCK_PENGRAJIN_DETAILS } from '@/lib/mock-data';
 import { cn } from '@/lib/utils';
-import { toast } from 'sonner';
+import { useArtisanStore } from '@/stores/artisanStore';
+import { Skeleton } from '@/components/ui/skeleton';
 export function AdminDashboardPage() {
-  const artisans = MOCK_USERS.filter(u => u.role === 'artisan');
+  const fetchArtisans = useArtisanStore((s) => s.fetchArtisans);
+  const artisans = useArtisanStore((s) => s.artisans);
+  const isLoading = useArtisanStore((s) => s.isLoading);
+  const updateArtisanStatus = useArtisanStore((s) => s.updateArtisanStatus);
+  useEffect(() => {
+    fetchArtisans();
+  }, [fetchArtisans]);
   const handleStatusChange = (userId: string, status: 'verified' | 'rejected') => {
-    // This is a mock update. In a real app, this would be an API call.
-    const user = MOCK_USERS.find(u => u.id === userId);
-    if (user) {
-      user.status = status;
-      toast.success(`Artisan ${user.name} has been ${status}.`);
-      // Force a re-render if needed, though in a real app state management would handle this.
-    }
+    updateArtisanStatus(userId, status);
   };
   return (
     <DashboardLayout>
@@ -26,6 +27,9 @@ export function AdminDashboardPage() {
           <h1 className="text-3xl font-bold">Artisan Verification</h1>
           <p className="text-muted-foreground">Review and manage artisan registration requests.</p>
         </div>
+        <Button variant="outline" size="icon" onClick={fetchArtisans} disabled={isLoading}>
+          <RefreshCw className={cn("h-4 w-4", isLoading && "animate-spin")} />
+        </Button>
       </div>
       <Card>
         <CardHeader>
@@ -45,12 +49,20 @@ export function AdminDashboardPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {artisans.map((artisan) => {
-                const details = MOCK_PENGRAJIN_DETAILS.find(d => d.userId === artisan.id);
-                return (
+              {isLoading ? (
+                [...Array(5)].map((_, i) => (
+                  <TableRow key={i}>
+                    <TableCell><Skeleton className="h-5 w-32" /></TableCell>
+                    <TableCell><Skeleton className="h-5 w-40" /></TableCell>
+                    <TableCell><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
+                    <TableCell><Skeleton className="h-8 w-8" /></TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                artisans.map((artisan) => (
                   <TableRow key={artisan.id}>
                     <TableCell className="font-medium">{artisan.name}</TableCell>
-                    <TableCell>{details?.storeName || 'N/A'}</TableCell>
+                    <TableCell>{artisan.details?.storeName || 'N/A'}</TableCell>
                     <TableCell>
                       <Badge
                         variant={
@@ -66,7 +78,7 @@ export function AdminDashboardPage() {
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button aria-haspopup="true" size="icon" variant="ghost">
+                          <Button aria-haspopup="true" size="icon" variant="ghost" disabled={isLoading}>
                             <MoreHorizontal className="h-4 w-4" />
                             <span className="sr-only">Toggle menu</span>
                           </Button>
@@ -74,14 +86,18 @@ export function AdminDashboardPage() {
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuItem>View Details</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleStatusChange(artisan.id, 'verified')}>Approve</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleStatusChange(artisan.id, 'rejected')} className="text-destructive">Reject</DropdownMenuItem>
+                          {artisan.status !== 'verified' && (
+                            <DropdownMenuItem onClick={() => handleStatusChange(artisan.id, 'verified')}>Approve</DropdownMenuItem>
+                          )}
+                          {artisan.status !== 'rejected' && (
+                            <DropdownMenuItem onClick={() => handleStatusChange(artisan.id, 'rejected')} className="text-destructive">Reject</DropdownMenuItem>
+                          )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
                   </TableRow>
-                );
-              })}
+                ))
+              )}
             </TableBody>
           </Table>
         </CardContent>

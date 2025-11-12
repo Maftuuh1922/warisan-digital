@@ -16,6 +16,7 @@ import { AuthPage } from '@/pages/AuthPage';
 import { ArtisanDashboardPage } from '@/pages/dashboard/ArtisanDashboardPage';
 import { AdminDashboardPage } from '@/pages/dashboard/AdminDashboardPage';
 import { Toaster } from '@/components/ui/sonner';
+import { ProtectedRoute } from './components/ProtectedRoute';
 const router = createBrowserRouter([
   {
     path: "/",
@@ -34,12 +35,20 @@ const router = createBrowserRouter([
   },
   {
     path: "/dashboard/artisan",
-    element: <ArtisanDashboardPage />,
+    element: (
+      <ProtectedRoute role="artisan">
+        <ArtisanDashboardPage />
+      </ProtectedRoute>
+    ),
     errorElement: <RouteErrorBoundary />,
   },
   {
     path: "/dashboard/admin",
-    element: <AdminDashboardPage />,
+    element: (
+      <ProtectedRoute role="admin">
+        <AdminDashboardPage />
+      </ProtectedRoute>
+    ),
     errorElement: <RouteErrorBoundary />,
   },
 ]);
