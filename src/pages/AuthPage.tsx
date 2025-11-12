@@ -65,11 +65,8 @@ export function AuthPage() {
   };
   return (
     <AppLayout>
-      <div className="relative min-h-[calc(100vh-10rem)] flex items-center justify-center py-16 md:py-24 bg-brand-primary overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center opacity-10"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1593941707882-6b25251a47a3?q=80&w=1800&auto=format&fit=crop')" }}
-        />
+      <div className="relative min-h-[calc(100vh-10rem)] flex items-center justify-center py-16 md:py-24 batik-background overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-primary via-brand-primary/80 to-brand-primary" />
         <div className="relative z-10 w-full max-w-md px-4">
           <Tabs defaultValue="login" className="w-full">
             <TabsList className="grid w-full grid-cols-2 bg-card/80 backdrop-blur-sm rounded-xl p-1">

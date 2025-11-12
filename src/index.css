@@ -53,3 +53,9 @@
     text-rendering: optimizeLegibility;
   }
 }
+@layer utilities {
+  .batik-background {
+    background-image: url('https://www.transparenttextures.com/patterns/batthern.png');
+    background-color: hsl(var(--brand-primary));
+  }
+}

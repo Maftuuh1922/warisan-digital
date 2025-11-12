@@ -25,11 +25,8 @@ export function HomePage() {
   return (
     <AppLayout>
       {/* Hero Section */}
-      <section className="relative bg-brand-primary overflow-hidden">
-        <div 
-          className="absolute inset-0 bg-cover bg-center opacity-10" 
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1593941707882-6b25251a47a3?q=80&w=1800&auto=format&fit=crop')" }}
-        />
+      <section className="relative batik-background overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-primary via-brand-primary/50 to-transparent" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="py-24 md:py-32 lg:py-48 text-center">
             <motion.h1

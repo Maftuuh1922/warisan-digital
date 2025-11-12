@@ -5,16 +5,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bot, UploadCloud, Sparkles, FileImage, X } from 'lucide-react';
 import { toast } from 'sonner';
-interface AnalysisResult {
-  motif: string;
-  origin: string;
-  philosophy: string;
-}
+import { batikDataset, type BatikInfo } from '@/lib/batik-dataset';
 export function AiAnalysisPage() {
   const [image, setImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [result, setResult] = useState<BatikInfo | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -33,13 +29,11 @@ export function AiAnalysisPage() {
     setIsLoading(true);
     setResult(null);
     toast.info('Menganalisis motif batik Anda...');
-    // Simulate AI analysis
+    // Simulate AI analysis by picking a random entry from the dataset
     setTimeout(() => {
-      setResult({
-        motif: 'Mega Mendung',
-        origin: 'Cirebon, Jawa Barat',
-        philosophy: 'Motif Mega Mendung melambangkan awan pembawa hujan yang meneduhkan, pemberi kehidupan, dan kesuburan. Gradasi warna pada motif ini merepresentasikan kepemimpinan yang bijaksana dan sabar.',
-      });
+      const randomIndex = Math.floor(Math.random() * batikDataset.length);
+      const randomBatik = batikDataset[randomIndex];
+      setResult(randomBatik);
       setIsLoading(false);
       toast.success('Analisis berhasil diselesaikan!');
     }, 2500);

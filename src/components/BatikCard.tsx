@@ -27,17 +27,18 @@ export function BatikCard({ batik, index }: BatikCardProps) {
       initial="hidden"
       animate="visible"
       custom={index}
-      whileHover={{ y: -5, scale: 1.02 }}
+      whileHover={{ y: -5 }}
+      whileTap={{ scale: 0.98 }}
       className="h-full"
     >
       <Link to={`/batik/${batik.id}`} className="block h-full group">
-        <Card className="h-full flex flex-col overflow-hidden transition-all duration-200 ease-in-out hover:shadow-xl border-border/60 group-hover:border-brand-accent/50">
+        <Card className="h-full flex flex-col overflow-hidden transition-all duration-300 ease-in-out hover:shadow-xl border-border/60 group-hover:border-brand-accent/50">
           <CardHeader className="p-0">
-            <div className="aspect-[4/3]">
+            <div className="aspect-[4/3] overflow-hidden">
               <img
                 src={batik.imageUrl}
                 alt={batik.name}
-                className="object-cover w-full h-full"
+                className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
               />
             </div>
           </CardHeader>
