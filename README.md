@@ -1,6 +1,6 @@
 # BatikIn
 *Platform Digital Batik dengan Machine Learning & Modern UI*
-[cloudflarebutton]
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/Maftuuh1922/warisan-digital)
 ## About The Project
 BatikIn is a sophisticated web application designed to bridge the gap between traditional batik artisans and the modern consumer, leveraging a high-fidelity AI simulation for analysis and verification. The platform serves three key user groups: Artisans, Administrators, and the Public.
 Artisans can register for an account, and once verified by an administrator, they can manage their portfolio of authentic batik creations. For each piece, they can input rich details including its history, the meaning behind its motif, and high-quality images. The system's core feature is the ability to generate a unique, printable QR code for every batik item, serving as a digital certificate of authenticity.
@@ -75,4 +75,4 @@ This application is designed for easy deployment to the Cloudflare global networ
     bun deploy
     ```
 Alternatively, you can deploy your own version of this project with a single click.
-[cloudflarebutton]
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/Maftuuh1922/warisan-digital)
