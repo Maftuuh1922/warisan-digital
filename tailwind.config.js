@@ -6,6 +6,7 @@ export default {
   	extend: {
   		fontFamily: {
   			sans: [
+          'Sora',
   				'Inter',
   				'-apple-system',
   				'BlinkMacSystemFont',
@@ -14,6 +15,7 @@ export default {
   				'sans-serif'
   			],
   			display: [
+  				'Sora',
   				'Cal Sans',
   				'Inter',
   				'system-ui',
@@ -91,6 +93,9 @@ export default {
   			sm: 'calc(var(--radius) - 4px)'
   		},
   		colors: {
+        'brand-primary': 'hsl(var(--brand-primary))',
+        'brand-secondary': 'hsl(var(--brand-secondary))',
+        'brand-accent': 'hsl(var(--brand-accent))',
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			muted: {

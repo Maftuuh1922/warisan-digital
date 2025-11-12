@@ -3,22 +3,18 @@ export interface ApiResponse<T = unknown> {
   data?: T;
   error?: string;
 }
-
-// Minimal real-world chat example types (shared by frontend and worker)
 export interface User {
   id: string;
   name: string;
+  role: 'artisan' | 'admin';
+  status: 'pending' | 'verified' | 'rejected';
 }
-
-export interface Chat {
+export interface Batik {
   id: string;
-  title: string;
-}
-
-export interface ChatMessage {
-  id: string;
-  chatId: string;
-  userId: string;
-  text: string;
-  ts: number; // epoch millis
+  name: string;
+  motif: string;
+  history: string;
+  imageUrl: string;
+  artisanId: string;
+  artisanName: string;
 }
