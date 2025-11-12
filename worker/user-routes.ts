@@ -95,9 +95,9 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
   app.post('/api/batiks', async (c) => {
     const body = await c.req.json();
     const authHeader = c.req.header('X-User-Email');
-    if (!authHeader) return bad(c, 'Auth header missing', 401);
+    if (!authHeader) return bad(c, 'Auth header missing');
     const userEntity = await UserEntity.findByEmail(c.env, authHeader);
-    if (!userEntity) return bad(c, 'User not found', 401);
+    if (!userEntity) return bad(c, 'User not found');
     const user = await userEntity.getState();
     const newBatik: Batik = {
       id: crypto.randomUUID(),

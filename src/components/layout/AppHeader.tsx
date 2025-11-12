@@ -1,25 +1,22 @@
 import { useState } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Menu, X, Feather, LayoutDashboard } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ThemeToggle } from '@/components/ThemeToggle';
 import { cn } from '@/lib/utils';
-import { useAuthStore } from '@/stores/authStore';
+// A simple Batik-inspired icon component
+const BatikIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" stroke="#3E2723" strokeWidth="2" strokeLinejoin="round"/>
+    <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="#D4AF37" fillOpacity="0.3"/>
+  </svg>
+);
 export function AppHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const user = useAuthStore((s) => s.user);
-  const logout = useAuthStore((s) => s.logout);
-  const navigate = useNavigate();
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
   const navLinks = [
-    { name: 'Gallery', href: '/' },
-    { name: 'About', href: '/about' },
-    { name: 'Artisans', href: '/artisans' },
+    { name: 'Galeri', href: '/galeri' },
+    { name: 'Analisis AI', href: '/analisis-ai' },
+    { name: 'Scan QR', href: '/scan-qr' },
   ];
   const NavItems = ({ isMobile = false }) => (
     <>
@@ -30,52 +27,39 @@ export function AppHeader() {
           onClick={() => isMobile && setMobileMenuOpen(false)}
           className={({ isActive }) =>
             cn(
-              'font-medium transition-colors hover:text-brand-accent',
-              isActive ? 'text-brand-accent' : 'text-foreground/80',
-              isMobile ? 'block py-2 text-lg' : 'text-sm'
+              'font-medium text-foreground/80 transition-colors hover:text-foreground relative group',
+              isActive && 'text-foreground',
+              isMobile ? 'block py-2 text-lg' : 'text-base'
             )
           }
         >
-          {item.name}
+          <span>{item.name}</span>
+          <span className={cn(
+            'absolute bottom-0 left-0 h-0.5 bg-brand-accent w-full scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out',
+            isMobile ? 'hidden' : 'block'
+          )} />
         </NavLink>
       ))}
     </>
   );
-  const dashboardPath = user?.role === 'admin' ? '/dashboard/admin' : '/dashboard/artisan';
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full bg-card shadow-nav">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
+        <div className="flex h-20 items-center justify-between">
           <div className="flex items-center">
-            <Link to="/" className="flex items-center gap-2 text-lg font-bold text-foreground">
-              <Feather className="h-6 w-6 text-brand-accent" />
-              <span>Warisan Digital</span>
+            <Link to="/" className="flex items-center gap-2 text-2xl font-display font-bold text-foreground">
+              <BatikIcon />
+              <span>BatikIn</span>
             </Link>
           </div>
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="hidden md:flex items-center space-x-10">
             <NavItems />
           </nav>
-          <div className="hidden md:flex items-center space-x-2">
-            {isAuthenticated ? (
-              <>
-                <Button variant="ghost" asChild>
-                  <Link to={dashboardPath}>
-                    <LayoutDashboard className="mr-2 h-4 w-4" />
-                    Dashboard
-                  </Link>
-                </Button>
-                <Button onClick={handleLogout} className="bg-brand-accent hover:bg-brand-accent/90 text-accent-foreground">Logout</Button>
-              </>
-            ) : (
-              <>
-                <Button variant="ghost" asChild><Link to="/auth">Login</Link></Button>
-                <Button asChild className="bg-brand-accent hover:bg-brand-accent/90 text-accent-foreground"><Link to="/auth">Register</Link></Button>
-              </>
-            )}
-            <ThemeToggle className="relative top-0 right-0" />
+          <div className="hidden md:flex items-center space-x-3">
+            <Button variant="ghost" asChild><Link to="/auth">Login</Link></Button>
+            <Button asChild className="rounded-xl"><Link to="/auth">Daftar</Link></Button>
           </div>
           <div className="md:hidden flex items-center">
-            <ThemeToggle className="relative top-0 right-0 mr-2" />
             <Button
               variant="ghost"
               size="icon"
@@ -89,25 +73,16 @@ export function AppHeader() {
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="md:hidden absolute top-16 inset-x-0 bg-background p-4 border-b"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden absolute top-20 inset-x-0 bg-card p-4 border-b"
           >
             <nav className="flex flex-col space-y-4">
               <NavItems isMobile />
               <div className="flex flex-col space-y-2 pt-4 border-t">
-                {isAuthenticated ? (
-                  <>
-                    <Button variant="outline" asChild><Link to={dashboardPath} onClick={() => setMobileMenuOpen(false)}>Dashboard</Link></Button>
-                    <Button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="bg-brand-accent hover:bg-brand-accent/90 text-accent-foreground">Logout</Button>
-                  </>
-                ) : (
-                  <>
-                    <Button variant="outline" asChild><Link to="/auth" onClick={() => setMobileMenuOpen(false)}>Login</Link></Button>
-                    <Button asChild className="bg-brand-accent hover:bg-brand-accent/90 text-accent-foreground"><Link to="/auth" onClick={() => setMobileMenuOpen(false)}>Register</Link></Button>
-                  </>
-                )}
+                <Button variant="outline" asChild><Link to="/auth" onClick={() => setMobileMenuOpen(false)}>Login</Link></Button>
+                <Button asChild className="rounded-xl"><Link to="/auth" onClick={() => setMobileMenuOpen(false)}>Daftar</Link></Button>
               </div>
             </nav>
           </motion.div>

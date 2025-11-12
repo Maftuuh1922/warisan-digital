@@ -1,60 +1,43 @@
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 @layer base {
   :root {
+    /* BatikIn Design System */
+    /* Converted from hex: https://www.color-blindness.com/color-name-hue-tool/ */
     /* Brand Colors */
-    --brand-primary: 210 29% 29%; /* #2C3E50 */
-    --brand-secondary: 60 31% 95%; /* Lighter version of #F5F5DC */
-    --brand-accent: 25 78% 50%; /* #D2691E */
+    --brand-primary: 38 41% 94%; /* #F5F0E8 - cream/off-white */
+    --brand-secondary: 43 100% 95%; /* #FFF8E7 - soft pastel yellow */
+    --brand-accent: 45 65% 51%; /* #D4AF37 - gold */
     /* Core Colors */
-    --background: 60 33% 97%; /* #F5F5DC - Beige */
-    --foreground: 210 29% 15%; /* Darker #2C3E50 */
-    --card: 0 0% 100%;
-    --card-foreground: 210 29% 15%;
+    --background: 36 33% 97%; /* #FAF7F2 - light cream */
+    --foreground: 16 29% 19%; /* #3E2723 - dark brown */
+    --card: 0 0% 100%; /* #FFFFFF */
+    --card-foreground: 16 29% 19%; /* #3E2723 */
     --popover: 0 0% 100%;
-    --popover-foreground: 210 29% 15%;
-    --primary: var(--brand-primary);
-    --primary-foreground: 0 0% 98%;
+    --popover-foreground: 16 29% 19%;
+    --primary: 16 29% 19%; /* #3E2723 - Button Primary */
+    --primary-foreground: 36 33% 97%; /* #FAF7F2 */
     --secondary: var(--brand-secondary);
-    --secondary-foreground: 210 29% 20%;
-    --muted: 60 20% 90%;
-    --muted-foreground: 210 15% 45%;
+    --secondary-foreground: 16 29% 19%;
+    --muted: 38 41% 94%; /* #F5F0E8 */
+    --muted-foreground: 19 25% 34%; /* #6D4C41 - medium brown */
     --accent: var(--brand-accent);
-    --accent-foreground: 0 0% 98%;
+    --accent-foreground: 16 29% 19%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 210 20% 85%;
-    --input: 210 20% 90%;
+    --border: 35 33% 82%; /* #E0D5C7 - light brown */
+    --input: 35 33% 82%;
     --ring: var(--brand-accent);
-    --radius: 0.5rem;
+    --radius: 1rem; /* 16px */
   }
   .dark {
-    /* Brand Colors */
-    --brand-primary: 210 29% 85%; /* Lighter #2C3E50 */
-    --brand-secondary: 210 20% 15%; /* Darker version */
-    --brand-accent: 28 85% 60%; /* Brighter #D2691E */
-    /* Core Colors */
-    --background: 210 29% 10%; /* Dark version of #2C3E50 */
-    --foreground: 60 33% 97%; /* Light version of #F5F5DC */
-    --card: 210 29% 12%;
-    --card-foreground: 60 33% 97%;
-    --popover: 210 29% 10%;
-    --popover-foreground: 60 33% 97%;
-    --primary: var(--brand-primary);
-    --primary-foreground: 210 29% 10%;
-    --secondary: var(--brand-secondary);
-    --secondary-foreground: 60 33% 90%;
-    --muted: 210 20% 20%;
-    --muted-foreground: 210 15% 65%;
-    --accent: var(--brand-accent);
-    --accent-foreground: 210 29% 10%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 210 20% 25%;
-    --input: 210 20% 22%;
-    --ring: var(--brand-accent);
+    /* Dark theme can be defined here later if needed */
+    /* For now, we'll stick to the light theme as specified */
+    :root {
+      /* Keeping dark theme same as light for now */
+    }
   }
   * {
     @apply border-border;

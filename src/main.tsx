@@ -20,10 +20,26 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { AboutPage } from './pages/AboutPage';
 import { ArtisansPage } from './pages/ArtisansPage';
 import { PrintQrPage } from './pages/PrintQrPage';
+import { PlaceholderPage } from './pages/PlaceholderPage';
 const router = createBrowserRouter([
   {
     path: "/",
     element: <HomePage />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/galeri",
+    element: <PlaceholderPage pageName="Galeri" />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/analisis-ai",
+    element: <PlaceholderPage pageName="Analisis AI" />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/scan-qr",
+    element: <PlaceholderPage pageName="Scan QR" />,
     errorElement: <RouteErrorBoundary />,
   },
   {
