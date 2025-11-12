@@ -7,10 +7,10 @@ export const MOCK_USERS: User[] = [
   { id: 'a4', name: 'Galeri Indah', email: 'indah@batik.com', role: 'artisan', status: 'rejected' },
 ];
 export const MOCK_PENGRAJIN_DETAILS: PengrajinDetails[] = [
-  { userId: 'a1', storeName: 'Batik Wati Solo', address: 'Jl. Slamet Riyadi No. 1, Solo', phoneNumber: '081234567890', qualificationDocumentUrl: '/docs/doc1.pdf' },
-  { userId: 'a2', storeName: 'Joko Batik Pekalongan', address: 'Jl. Pesisir No. 10, Pekalongan', phoneNumber: '081234567891', qualificationDocumentUrl: '/docs/doc2.pdf' },
-  { userId: 'a3', storeName: 'Sanggar Lestari Yogyakarta', address: 'Jl. Malioboro No. 5, Yogyakarta', phoneNumber: '081234567892', qualificationDocumentUrl: '/docs/doc3.pdf' },
-  { userId: 'a4', storeName: 'Galeri Indah Cirebon', address: 'Jl. Trusmi No. 8, Cirebon', phoneNumber: '081234567893', qualificationDocumentUrl: '/docs/doc4.pdf' },
+  { id: 'a1', userId: 'a1', storeName: 'Batik Wati Solo', address: 'Jl. Slamet Riyadi No. 1, Solo', phoneNumber: '081234567890', qualificationDocumentUrl: '/docs/doc1.pdf' },
+  { id: 'a2', userId: 'a2', storeName: 'Joko Batik Pekalongan', address: 'Jl. Pesisir No. 10, Pekalongan', phoneNumber: '081234567891', qualificationDocumentUrl: '/docs/doc2.pdf' },
+  { id: 'a3', userId: 'a3', storeName: 'Sanggar Lestari Yogyakarta', address: 'Jl. Malioboro No. 5, Yogyakarta', phoneNumber: '081234567892', qualificationDocumentUrl: '/docs/doc3.pdf' },
+  { id: 'a4', userId: 'a4', storeName: 'Galeri Indah Cirebon', address: 'Jl. Trusmi No. 8, Cirebon', phoneNumber: '081234567893', qualificationDocumentUrl: '/docs/doc4.pdf' },
 ];
 export const MOCK_BATIK_DATA: Batik[] = [
   {

@@ -50,8 +50,8 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     const { items: users } = await UserEntity.list(c.env);
     const artisans = users.filter(u => u.role === 'artisan');
     const artisansWithDetails = await Promise.all(artisans.map(async (artisan) => {
-      const detailsEntity = new PengrajinDetailsEntity(c.env, artisan.id);
-      const details = await detailsEntity.exists() ? await detailsEntity.getState() : undefined;
+      const detailsEntity = await PengrajinDetailsEntity.findById(c.env, artisan.id);
+      const details = detailsEntity ? await detailsEntity.getState() : undefined;
       return { ...artisan, details };
     }));
     return ok(c, { items: artisansWithDetails });
@@ -61,8 +61,8 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     const userEntity = await UserEntity.findById(c.env, userId);
     if (!userEntity) return notFound(c, 'User not found');
     const user = await userEntity.getState();
-    const detailsEntity = new PengrajinDetailsEntity(c.env, user.id);
-    const details = await detailsEntity.exists() ? await detailsEntity.getState() : undefined;
+    const detailsEntity = await PengrajinDetailsEntity.findById(c.env, user.id);
+    const details = detailsEntity ? await detailsEntity.getState() : undefined;
     return ok(c, { ...user, details });
   });
   app.put('/api/artisans/:id/status', async (c) => {
@@ -76,7 +76,8 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
   });
   // --- BATIK ROUTES (PUBLIC & ARTISAN) ---
   app.get('/api/batiks', async (c) => {
-    return ok(c, await BatikEntity.list(c.env));
+    const { items } = await BatikEntity.list(c.env);
+    return ok(c, { items });
   });
   app.get('/api/batiks/:id', async (c) => {
     const id = c.req.param('id');
@@ -88,7 +89,7 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     const artisanId = c.req.param('artisanId');
     const { items } = await BatikEntity.list(c.env);
     const artisanBatiks = items.filter(b => b.artisanId === artisanId);
-    return ok(c, artisanBatiks);
+    return ok(c, { items: artisanBatiks });
   });
   // --- PROTECTED ARTISAN BATIK CRUD ---
   app.post('/api/batiks', async (c) => {

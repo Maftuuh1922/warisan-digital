@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import QRCode from 'qrcode.react';
+import { QRCodeSVG } from 'qrcode.react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { api } from '@/lib/api-client';
@@ -68,7 +68,7 @@ export function PrintQrPage() {
             <h1 className="text-2xl font-bold text-foreground">{batik.name}</h1>
             <p className="text-muted-foreground">by {batik.artisanName}</p>
             <div className="p-4 bg-white rounded-md">
-              <QRCode value={qrUrl} size={256} level="H" includeMargin={true} />
+              <QRCodeSVG value={qrUrl} size={256} level="H" includeMargin={true} />
             </div>
             <p className="text-sm text-muted-foreground max-w-xs">
               Scan this QR code to verify the authenticity and discover the story of this unique batik.

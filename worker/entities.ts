@@ -1,36 +1,24 @@
-import { IndexedEntity, type Env, Index } from "./core-utils";
+import { IndexedEntity, type Env } from "./core-utils";
 import type { User, Batik, PengrajinDetails } from "@shared/types";
-// A secondary index to map user UUIDs to user emails (the primary key for UserEntity)
-class UserIdIndex extends Index<string> {
-  static readonly entityName = "sys-index-root";
-  constructor(env: Env) { super(env, 'user-id-to-email'); }
-}
 export class UserEntity extends IndexedEntity<User> {
   static readonly entityName = "user";
-  static readonly indexName = "users"; // This indexes by email
+  static readonly indexName = "users"; // This indexes by id
   static readonly initialState: User = { id: "", name: "", email: "", role: 'artisan', status: 'pending' };
   static override keyOf(state: User): string {
-    return state.email.toLowerCase();
+    return state.id;
   }
   static async findByEmail(env: Env, email: string): Promise<UserEntity | null> {
-    const user = new UserEntity(env, email.toLowerCase());
+    const { items } = await this.list(env);
+    const userState = items.find(u => u.email.toLowerCase() === email.toLowerCase());
+    if (!userState) return null;
+    return new this(env, userState.id);
+  }
+  static async findById(env: Env, userId: string): Promise<UserEntity | null> {
+    const user = new this(env, userId);
     if (await user.exists()) {
       return user;
     }
     return null;
-  }
-  static async findById(env: Env, userId: string): Promise<UserEntity | null> {
-    const idx = new UserIdIndex(env);
-    const email = (await idx.page(userId, 1)).items[0];
-    if (!email) return null;
-    return this.findByEmail(env, email);
-  }
-  static override async create<TCtor extends typeof UserEntity>(this: TCtor, env: Env, state: User): Promise<User> {
-    const createdState = await super.create(env, state);
-    const idx = new UserIdIndex(env);
-    // Store the mapping: `userId` -> `email`
-    await idx.add(`${state.id}:${state.email.toLowerCase()}`);
-    return createdState;
   }
 }
 export class PengrajinDetailsEntity extends IndexedEntity<PengrajinDetails> {
@@ -38,11 +26,34 @@ export class PengrajinDetailsEntity extends IndexedEntity<PengrajinDetails> {
   static readonly indexName = "pengrajin_details_idx";
   static readonly initialState: PengrajinDetails = { id: "", userId: "", storeName: "", address: "", phoneNumber: "", qualificationDocumentUrl: "" };
   static override keyOf(state: PengrajinDetails): string {
-    return state.userId;
+    return state.id;
+  }
+  static async findByUserId(env: Env, userId: string): Promise<PengrajinDetailsEntity | null> {
+    const { items } = await this.list(env);
+    const detailsState = items.find(d => d.userId === userId);
+    if (!detailsState) return null;
+    return new this(env, detailsState.id);
+  }
+  static async findById(env: Env, id: string): Promise<PengrajinDetailsEntity | null> {
+    const details = new this(env, id);
+    if (await details.exists()) {
+      return details;
+    }
+    return null;
   }
 }
 export class BatikEntity extends IndexedEntity<Batik> {
   static readonly entityName = "batik";
   static readonly indexName = "batiks";
   static readonly initialState: Batik = { id: "", name: "", motif: "", history: "", imageUrl: "", artisanId: "", artisanName: "" };
+  static override keyOf(state: Batik): string {
+    return state.id;
+  }
+  static async findById(env: Env, id: string): Promise<BatikEntity | null> {
+    const batik = new this(env, id);
+    if (await batik.exists()) {
+      return batik;
+    }
+    return null;
+  }
 }

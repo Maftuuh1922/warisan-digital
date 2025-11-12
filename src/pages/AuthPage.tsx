@@ -56,7 +56,7 @@ export function AuthPage() {
     }
   };
   const onRegister = async (data: z.infer<typeof registerSchema>) => {
-    const newUser = await registerArtisan(data);
+    const newUser = await registerArtisan({ ...data, id: crypto.randomUUID() });
     if (newUser) {
       toast.success('Registration successful! Your application is pending review by an administrator.');
       registerForm.reset();
