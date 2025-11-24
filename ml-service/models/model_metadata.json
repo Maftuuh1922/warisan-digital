@@ -1,0 +1,23 @@
+{
+  "model_version": "1.0-synthetic",
+  "training_date": "2025-11-21T18:06:44.267566",
+  "dataset_type": "synthetic",
+  "n_training_samples": 320,
+  "n_test_samples": 80,
+  "feature_dimension": 100,
+  "classes": [
+    "Batik Parang",
+    "Batik Kawung",
+    "Batik Mega Mendung",
+    "Batik Sekar Jagad",
+    "Batik Truntum",
+    "Batik Sido Mukti",
+    "Batik Tambal",
+    "Batik Sogan"
+  ],
+  "accuracies": {
+    "svm": 1.0,
+    "random_forest": 1.0,
+    "ensemble": 1.0
+  }
+}

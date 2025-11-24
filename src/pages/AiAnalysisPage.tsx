@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { api } from '@/lib/api-client';
 import { processImageForML } from '@/lib/image-processor';
 import { CameraView } from '@/components/CameraView';
+import { MLEnhancedFeatures } from '@/components/MLEnhancedFeatures';
 import type { MLAnalysisResult } from '@shared/types';
 import { Progress } from '@/components/ui/progress';
 type InputMode = 'upload' | 'camera';
@@ -91,7 +92,6 @@ export function AiAnalysisPage() {
       formData.append('image', processedBlob, image.name);
       const analysisResult = await api<MLAnalysisResult>('/api/classify-batik', {
         method: 'POST',
-        headers: { 'Content-Type': undefined as any },
         body: formData,
       });
       setResult(analysisResult);
@@ -172,6 +172,9 @@ export function AiAnalysisPage() {
           ))}
         </CardContent>
       </Card>
+
+      {/* Enhanced ML Features */}
+      <MLEnhancedFeatures image={image} />
     </motion.div>
   );
   return (

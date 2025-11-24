@@ -3,7 +3,13 @@ import { useAuthStore } from "@/stores/authStore";
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const user = useAuthStore.getState().user;
   const headers = new Headers(init?.headers);
-  headers.set('Content-Type', 'application/json');
+  
+  // Only set Content-Type for non-FormData requests
+  // For FormData, let browser set it automatically (with boundary)
+  if (!(init?.body instanceof FormData)) {
+    headers.set('Content-Type', 'application/json');
+  }
+  
   // This is a temporary way to "authenticate" the user for the backend entities.
   // In a real app, this would be an Authorization header with a JWT.
   if (user?.email) {
