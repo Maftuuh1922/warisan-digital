@@ -1,17 +1,20 @@
 # Flask
-Flask==3.0.0
-flask-cors==4.0.0
+Flask>=3.0.0
+flask-cors>=4.0.0
 
-# TensorFlow & Keras
-tensorflow==2.15.0
+# TensorFlow & Keras (compatible with Python 3.10+)
+tensorflow>=2.16.0
 
 # ML Libraries
-scikit-learn==1.3.2
-joblib==1.3.2
-numpy==1.24.3
+scikit-learn>=1.3.0
+joblib>=1.3.0
+numpy>=1.24.0
 
 # Image Processing
-Pillow==10.1.0
+Pillow>=10.0.0
 
 # Utilities
-python-dotenv==1.0.0
+python-dotenv>=1.0.0
+
+# Production Server
+gunicorn>=21.0.0
