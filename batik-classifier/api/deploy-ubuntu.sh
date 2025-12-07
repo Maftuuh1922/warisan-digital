@@ -72,6 +72,26 @@ echo "    This is normal for the first time."
 echo ""
 
 # ============================================================
+# 6.5. DOWNLOAD MODEL FILES
+# ============================================================
+echo ""
+echo "📥 Step 6.5: Downloading model files..."
+echo ""
+echo "⚠️  IMPORTANT: Model files need to be downloaded manually"
+echo ""
+echo "Models are stored in Google Drive (106MB exceeds GitHub limit)"
+echo ""
+echo "Download these files to: batik-classifier/api/models/"
+echo "  - batik_knn_model_95acc.pkl (106 MB)"
+echo "  - batik_classes.pkl"
+echo "  - scaler.joblib"
+echo "  - batik_model_metadata.pkl"
+echo ""
+echo "After downloading models, continue deployment..."
+read -p "Press Enter after you've downloaded the models..."
+echo ""
+
+# ============================================================
 # 7. TEST APPLICATION
 # ============================================================
 echo ""

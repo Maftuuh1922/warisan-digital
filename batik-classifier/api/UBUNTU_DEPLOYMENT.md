@@ -79,7 +79,27 @@ pip install -r requirements.txt
 
 **Note**: TensorFlow installation may take 5-10 minutes on first run.
 
-### Step 5: Test Application
+### Step 5: Download Model Files
+
+**Important**: Model files are stored in Google Drive (106MB KNN model exceeds GitHub's limit).
+
+```bash
+# Download models from Google Drive
+chmod +x download-models.sh
+./download-models.sh
+
+# Or download manually from:
+# https://drive.google.com/drive/folders/YOUR_FOLDER_ID
+# Save to: /var/www/batik-api/batik-classifier/api/models/
+```
+
+Required files:
+- `batik_knn_model_95acc.pkl` (106 MB)
+- `batik_classes.pkl`
+- `scaler.joblib`
+- `batik_model_metadata.pkl`
+
+### Step 6: Test Application
 
 ```bash
 python app.py
