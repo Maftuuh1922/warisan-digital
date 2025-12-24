@@ -1,8 +1,0 @@
-# Lite Version Requirements (No TensorFlow)
-Flask>=3.0.0
-flask-cors>=4.0.0
-Pillow>=10.0.0
-numpy>=1.24.0
-scikit-learn>=1.3.0
-joblib>=1.3.0
-python-dotenv>=1.0.0

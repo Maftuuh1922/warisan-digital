@@ -1,310 +1,158 @@
-"""
-Batik Classifier API - MobileNet Ultimate Version
-Model: MobileNetV2 Ultimate (Fine-tuned)
-Author: Muhammad Maftuh
-Last Updated: December 2025
-"""
-
+import os
+import json
+import numpy as np
+import tensorflow as tf
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import numpy as np
 from PIL import Image
 import io
-import os
-import sys
-import json
-
-# Set TensorFlow logging
-os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
-
-# Import TensorFlow
-try:
-    import tensorflow as tf
-    TENSORFLOW_AVAILABLE = True
-except ImportError:
-    TENSORFLOW_AVAILABLE = False
-    print("⚠️  TensorFlow tidak tersedia. Install dengan: pip install tensorflow")
-    sys.exit(1)
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS untuk frontend
+CORS(app)
 
-# ============================================================
-# KONFIGURASI MODEL
-# ============================================================
-print("🚀 Loading MobileNet Ultimate model...")
+# --- KONFIGURASI ---
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, 'models', 'batik_model.tflite') 
+CLASSES_PATH = os.path.join(BASE_DIR, 'models', 'batik_classes_mobilenet_ultimate.json')
 
-# Tentukan path model
-MODEL_DIR = os.path.join(os.path.dirname(__file__), 'models')
-USER_HOME = os.path.expanduser("~")
-DOWNLOADS_DIR = os.path.join(USER_HOME, "Downloads")
+print("==================================================")
+print("🚀 MEMULAI BATIK CLASSIFIER (TFLITE ENGINE)")
+print(f"📂 TensorFlow Version: {tf.__version__}")
+print("==================================================")
 
-# Priority: models/ directory, fallback ke Downloads/
-MODEL_PATH = os.path.join(MODEL_DIR, 'batik_mobilenet_ultimate_final.keras')
+# --- 1. LOAD MODEL TFLITE ---
 if not os.path.exists(MODEL_PATH):
-    MODEL_PATH = os.path.join(DOWNLOADS_DIR, 'batik_mobilenet_ultimate_final.keras')
+    print(f"❌ ERROR: File model TFLite tidak ditemukan: {MODEL_PATH}")
+    exit()
 
-CLASSES_PATH = os.path.join(MODEL_DIR, 'batik_classes_mobilenet_ultimate.json')
+try:
+    # Load Interpreter
+    interpreter = tf.lite.Interpreter(model_path=MODEL_PATH)
+    interpreter.allocate_tensors()
+    
+    # Dapat info input/output
+    input_details = interpreter.get_input_details()
+    output_details = interpreter.get_output_details()
+    
+    input_shape = input_details[0]['shape'] 
+    print(f"✅ Model TFLite berhasil dimuat! Input Shape: {input_shape}")
+except Exception as e:
+    print(f"❌ Gagal load TFLite: {e}")
+    exit()
+
+# --- 2. LOAD CLASSES (LOGIKA DIPERBAIKI) ---
 if not os.path.exists(CLASSES_PATH):
-    CLASSES_PATH = os.path.join(DOWNLOADS_DIR, 'batik_classes_mobilenet_ultimate.json')
+    print(f"❌ ERROR: File label tidak ditemukan.")
+    exit()
 
-CONFIG_PATH = os.path.join(MODEL_DIR, 'batik_config_mobilenet_ultimate.json')
-if not os.path.exists(CONFIG_PATH):
-    CONFIG_PATH = os.path.join(DOWNLOADS_DIR, 'batik_config_mobilenet_ultimate.json')
-
-INPUT_SIZE = (224, 224)  # MobileNetV2 Ultimate (from config)
-
-# ============================================================
-# LOAD MODEL & METADATA
-# ============================================================
-
-# Load classes
 try:
-    with open(CLASSES_PATH, "r", encoding="utf-8") as f:
-        data = json.load(f)
-    
-    if isinstance(data, list):
-        classes = data
-    elif isinstance(data, dict) and "classes" in data:
-        classes = data["classes"]
-    else:
-        raise ValueError("Format batik_classes_mobilenet_ultimate.json tidak dikenali")
-    
-    print(f"✅ Loaded {len(classes)} classes")
+    with open(CLASSES_PATH, 'r') as f:
+        class_data = json.load(f)
+        
+        # KASUS A: Format {"classes": ["batik_a", "batik_b"]} (Penyebab error kamu tadi)
+        if isinstance(class_data, dict) and "classes" in class_data:
+            class_names = class_data["classes"]
+            
+        # KASUS B: Format {"0": "batik_a", "1": "batik_b"}
+        elif isinstance(class_data, dict):
+            # Coba urutkan key angka
+            try:
+                sorted_keys = sorted(class_data.keys(), key=lambda x: int(x))
+                class_names = [class_data[k] for k in sorted_keys]
+            except ValueError:
+                # Jika gagal convert key ke int, ambil values langsung
+                print("⚠️ Warning: JSON key bukan angka, mengambil values langsung.")
+                class_names = list(class_data.values())
+        
+        # KASUS C: Format List langsung ["batik_a", "batik_b"]
+        elif isinstance(class_data, list):
+            class_names = class_data
+            
+        else:
+            raise ValueError("Format JSON tidak dikenali.")
+
+    print(f"✅ Berhasil memuat {len(class_names)} nama motif batik.")
+    # Print 3 contoh pertama untuk memastikan
+    print(f"📝 Contoh: {class_names[:3]}...") 
+
 except Exception as e:
-    print(f"❌ Gagal load classes: {e}")
-    sys.exit(1)
+    print(f"❌ Gagal membaca file JSON Classes: {e}")
+    exit()
 
-# Load config (optional)
-config = {}
-try:
-    if os.path.exists(CONFIG_PATH):
-        with open(CONFIG_PATH, "r", encoding="utf-8") as f:
-            config = json.load(f)
-        print(f"✅ Config loaded")
-except Exception as e:
-    print(f"⚠️  Config tidak tersedia: {e}")
+# --- PREPROCESSING ---
+def prepare_image(image, target_size=(224, 224)):
+    if image.mode != "RGB":
+        image = image.convert("RGB")
+    image = image.resize(target_size)
+    img_array = np.array(image, dtype=np.float32) 
+    
+    # Normalisasi
+    img_array = img_array / 255.0
+    
+    # Tambah dimensi batch
+    img_array = np.expand_dims(img_array, axis=0)
+    return img_array
 
-# Load Keras model
-try:
-    if not os.path.exists(MODEL_PATH):
-        raise FileNotFoundError(f"Model tidak ditemukan di: {MODEL_PATH}")
-    
-    model = tf.keras.models.load_model(MODEL_PATH)
-    print(f"✅ Model loaded dari: {MODEL_PATH}")
-    print(f"   Input shape: {model.input_shape}")
-    print(f"   Output shape: {model.output_shape}")
-except Exception as e:
-    print(f"❌ Gagal load model: {e}")
-    sys.exit(1)
-
-# ============================================================
-# HELPER FUNCTIONS
-# ============================================================
-
-def preprocess_mobilenet(x: np.ndarray) -> np.ndarray:
-    """Preprocessing MobileNetV2: scale pixel to [-1, 1]."""
-    return (x / 127.5) - 1.0
-
-
-def preprocess_image(image_file) -> np.ndarray:
-    """
-    Preprocess uploaded image untuk MobileNet Ultimate
-    
-    Args:
-        image_file: File object dari request.files
-    
-    Returns:
-        np.ndarray: Preprocessed image array
-    """
-    # Read image
-    img = Image.open(io.BytesIO(image_file.read()))
-    
-    # Convert to RGB
-    if img.mode != "RGB":
-        img = img.convert("RGB")
-    
-    # Resize to model input size
-    img = img.resize(INPUT_SIZE, Image.Resampling.LANCZOS)
-    
-    # Convert to array
-    arr = np.array(img, dtype=np.float32)
-    
-    # Add batch dimension
-    arr = np.expand_dims(arr, axis=0)
-    
-    # Apply MobileNet preprocessing
-    arr = preprocess_mobilenet(arr)
-    
-    return arr
-
-
-# ============================================================
-# API ROUTES
-# ============================================================
-
-@app.route('/')
+@app.route('/', methods=['GET'])
 def home():
-    """API info endpoint"""
     return jsonify({
-        'success': True,
-        'message': 'Batik Classifier API - MobileNet Ultimate',
-        'version': '2.0',
-        'model': {
-            'type': 'MobileNetV2 Ultimate',
-            'classes': len(classes),
-            'input_size': INPUT_SIZE,
-            'accuracy': config.get('test_accuracy', 'N/A')
-        },
-        'endpoints': {
-            'predict': '/predict (POST)',
-            'classes': '/classes (GET)',
-            'info': '/info (GET)',
-            'health': '/health (GET)'
-        }
+        "status": "Online", 
+        "mode": "TFLite",
+        "classes_loaded": len(class_names)
     })
-
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    """
-    Predict batik motif dari uploaded image
+    # Support both 'file' and 'image' field names
+    file = request.files.get('file') or request.files.get('image')
     
-    Request: multipart/form-data dengan field 'image'
-    Response: JSON dengan prediction dan confidence scores
-    """
+    if not file:
+        return jsonify({"error": "No file part"}), 400
+    
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+
     try:
-        # Check if image in request
-        if 'image' not in request.files:
-            return jsonify({
-                'success': False,
-                'error': 'No image provided. Please upload an image file.'
-            }), 400
+        # 1. Baca & Proses Gambar
+        image = Image.open(io.BytesIO(file.read()))
+        input_data = prepare_image(image)
         
-        file = request.files['image']
+        # 2. Masukkan data ke Interpreter
+        interpreter.set_tensor(input_details[0]['index'], input_data)
         
-        # Check empty filename
-        if file.filename == '':
-            return jsonify({
-                'success': False,
-                'error': 'Empty filename'
-            }), 400
+        # 3. Jalankan Prediksi
+        interpreter.invoke()
         
-        # Validate file extension
-        allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp'}
-        file_ext = file.filename.rsplit('.', 1)[-1].lower()
-        if file_ext not in allowed_extensions:
-            return jsonify({
-                'success': False,
-                'error': f'Invalid file type. Allowed: {", ".join(allowed_extensions)}'
-            }), 400
+        # 4. Ambil Hasil
+        output_data = interpreter.get_tensor(output_details[0]['index'])
+        predictions = output_data[0]
         
-        # Preprocess image
-        try:
-            x = preprocess_image(file)
-        except Exception as e:
-            return jsonify({
-                'success': False,
-                'error': f'Failed to process image: {str(e)}'
-            }), 400
-        
-        # Predict
-        preds = model.predict(x, verbose=0)[0]
-        
-        # Get top prediction
-        top_idx = int(np.argmax(preds))
-        top_conf = float(preds[top_idx])
+        # 5. Cari skor tertinggi
+        predicted_index = np.argmax(predictions)
+        predicted_label = class_names[predicted_index]
+        confidence = float(predictions[predicted_index])
         
         # Get top 5 predictions
-        top5_idx = np.argsort(preds)[-5:][::-1]
-        top_5 = [
+        top_5_indices = np.argsort(predictions)[-5:][::-1]
+        top_5_predictions = [
             {
-                'class': classes[int(i)],
-                'confidence': float(preds[int(i)]),
-                'percentage': f"{float(preds[int(i)]) * 100:.2f}%"
+                "class": class_names[idx],
+                "confidence": float(predictions[idx]),
+                "percentage": f"{float(predictions[idx]):.2%}"
             }
-            for i in top5_idx
+            for idx in top_5_indices
         ]
         
         return jsonify({
-            'success': True,
-            'prediction': classes[top_idx],
-            'confidence': top_conf,
-            'percentage': f"{top_conf * 100:.2f}%",
-            'top_5_predictions': top_5,
-            'model': 'MobileNetV2 Ultimate'
+            "success": True,
+            "prediction": predicted_label,
+            "confidence": confidence,
+            "percentage": f"{confidence:.2%}",
+            "top_5_predictions": top_5_predictions
         })
-    
+
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': f'Server error: {str(e)}'
-        }), 500
-
-
-@app.route('/classes', methods=['GET'])
-def get_classes():
-    """Get list of all batik classes"""
-    return jsonify({
-        'success': True,
-        'total': len(classes),
-        'classes': classes
-    })
-
-
-@app.route('/info', methods=['GET'])
-def get_info():
-    """Get model information dan metadata"""
-    return jsonify({
-        'success': True,
-        'model_info': {
-            'type': 'MobileNetV2 Ultimate',
-            'n_classes': len(classes),
-            'input_size': INPUT_SIZE,
-            'accuracy': config.get('test_accuracy', 'N/A'),
-            'val_accuracy': config.get('val_accuracy', 'N/A'),
-            'epochs': config.get('epochs', 'N/A'),
-            'batch_size': config.get('batch_size', 'N/A'),
-            'optimizer': config.get('optimizer', 'N/A'),
-            'model_path': MODEL_PATH
-        }
-    })
-
-
-@app.route('/health', methods=['GET'])
-def health_check():
-    """Health check endpoint"""
-    return jsonify({
-        'status': 'healthy',
-        'model_loaded': model is not None,
-        'tensorflow_version': tf.__version__
-    })
-
-
-# ============================================================
-# RUN SERVER
-# ============================================================
+        return jsonify({"success": False, "error": str(e)}), 500
 
 if __name__ == '__main__':
-    # Get port from environment atau default ke 5000
-    port = int(os.environ.get('PORT', 5000))
-    
-    print("\n" + "="*70)
-    print("🎯 BATIK CLASSIFIER API - MOBILENET ULTIMATE")
-    print("="*70)
-    print(f"✅ Model Type: MobileNetV2 Ultimate")
-    print(f"✅ Total Classes: {len(classes)}")
-    print(f"✅ Input Size: {INPUT_SIZE}")
-    print(f"✅ TensorFlow: {tf.__version__}")
-    if 'test_accuracy' in config:
-        print(f"✅ Test Accuracy: {config['test_accuracy']}")
-    print(f"✅ Server running on: http://0.0.0.0:{port}")
-    print("\n📋 API Endpoints:")
-    print("   GET  /          - API info")
-    print("   POST /predict   - Predict batik image")
-    print("   GET  /classes   - List all classes")
-    print("   GET  /info      - Model information")
-    print("   GET  /health    - Health check")
-    print("="*70 + "\n")
-    
-    app.run(host='0.0.0.0', port=port, debug=False)
+    app.run(host='0.0.0.0', port=5000)
