@@ -1,7 +1,10 @@
 import os
 import json
 import numpy as np
-import tensorflow as tf
+# HAPUS BARIS INI: import tensorflow as tf
+# GANTI JADI INI:
+import tflite_runtime.interpreter as tflite 
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from PIL import Image
@@ -12,12 +15,13 @@ CORS(app)
 
 # --- KONFIGURASI ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# Pastikan path ini sesuai struktur folder kamu
 MODEL_PATH = os.path.join(BASE_DIR, 'models', 'batik_model.tflite') 
 CLASSES_PATH = os.path.join(BASE_DIR, 'models', 'batik_classes_mobilenet_ultimate.json')
 
 print("==================================================")
 print("🚀 MEMULAI BATIK CLASSIFIER (TFLITE ENGINE)")
-print(f"📂 TensorFlow Version: {tf.__version__}")
+print("⚡ Mode: Lightweight (Non-AVX CPU Friendly)")
 print("==================================================")
 
 # --- 1. LOAD MODEL TFLITE ---
@@ -26,8 +30,8 @@ if not os.path.exists(MODEL_PATH):
     exit()
 
 try:
-    # Load Interpreter
-    interpreter = tf.lite.Interpreter(model_path=MODEL_PATH)
+    # PERUBAHAN PENTING: Panggil dari tflite_runtime, bukan tf.lite
+    interpreter = tflite.Interpreter(model_path=MODEL_PATH)
     interpreter.allocate_tensors()
     
     # Dapat info input/output
@@ -40,40 +44,31 @@ except Exception as e:
     print(f"❌ Gagal load TFLite: {e}")
     exit()
 
-# --- 2. LOAD CLASSES (LOGIKA DIPERBAIKI) ---
+# --- 2. LOAD CLASSES ---
 if not os.path.exists(CLASSES_PATH):
-    print(f"❌ ERROR: File label tidak ditemukan.")
+    print(f"❌ ERROR: File label tidak ditemukan di {CLASSES_PATH}")
     exit()
 
 try:
     with open(CLASSES_PATH, 'r') as f:
         class_data = json.load(f)
         
-        # KASUS A: Format {"classes": ["batik_a", "batik_b"]} (Penyebab error kamu tadi)
+        # Logika parsing JSON kamu sudah bagus!
         if isinstance(class_data, dict) and "classes" in class_data:
             class_names = class_data["classes"]
-            
-        # KASUS B: Format {"0": "batik_a", "1": "batik_b"}
         elif isinstance(class_data, dict):
-            # Coba urutkan key angka
             try:
                 sorted_keys = sorted(class_data.keys(), key=lambda x: int(x))
                 class_names = [class_data[k] for k in sorted_keys]
             except ValueError:
-                # Jika gagal convert key ke int, ambil values langsung
-                print("⚠️ Warning: JSON key bukan angka, mengambil values langsung.")
                 class_names = list(class_data.values())
-        
-        # KASUS C: Format List langsung ["batik_a", "batik_b"]
         elif isinstance(class_data, list):
             class_names = class_data
-            
         else:
             raise ValueError("Format JSON tidak dikenali.")
 
     print(f"✅ Berhasil memuat {len(class_names)} nama motif batik.")
-    # Print 3 contoh pertama untuk memastikan
-    print(f"📝 Contoh: {class_names[:3]}...") 
+    # print(f"📝 Contoh: {class_names[:3]}...") 
 
 except Exception as e:
     print(f"❌ Gagal membaca file JSON Classes: {e}")
@@ -86,7 +81,7 @@ def prepare_image(image, target_size=(224, 224)):
     image = image.resize(target_size)
     img_array = np.array(image, dtype=np.float32) 
     
-    # Normalisasi
+    # Normalisasi (Pastikan saat training kamu juga dibagi 255.0)
     img_array = img_array / 255.0
     
     # Tambah dimensi batch
@@ -97,7 +92,7 @@ def prepare_image(image, target_size=(224, 224)):
 def home():
     return jsonify({
         "status": "Online", 
-        "mode": "TFLite",
+        "mode": "TFLite Runtime (Celeron Optimized)",
         "classes_loaded": len(class_names)
     })
 
