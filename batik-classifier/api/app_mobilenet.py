@@ -1,9 +1,7 @@
 import os
 import json
 import numpy as np
-# HAPUS BARIS INI: import tensorflow as tf
-# GANTI JADI INI:
-import tflite_runtime.interpreter as tflite 
+import tensorflow as tf 
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -30,8 +28,8 @@ if not os.path.exists(MODEL_PATH):
     exit()
 
 try:
-    # PERUBAHAN PENTING: Panggil dari tflite_runtime, bukan tf.lite
-    interpreter = tflite.Interpreter(model_path=MODEL_PATH)
+    # Using TensorFlow Lite from TensorFlow package
+    interpreter = tf.lite.Interpreter(model_path=MODEL_PATH)
     interpreter.allocate_tensors()
     
     # Dapat info input/output
