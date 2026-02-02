@@ -1,12 +1,21 @@
+---
+title: Batik Classifier
+emoji: 🎨
+colorFrom: blue
+colorTo: purple
+sdk: docker
+pinned: false
+license: mit
+---
+
 # 🎯 Batik Classifier API
 
-REST API untuk klasifikasi motif batik menggunakan **InceptionV3 + KNN** dengan akurasi **95%**.
+REST API untuk klasifikasi motif batik menggunakan **MobileNetV2 + TFLite** dengan akurasi tinggi.
 
 ## 📊 Model Info
-- **Accuracy**: 95.00%
-- **Model**: InceptionV3 (feature extraction) + KNN (classification)
-- **Classes**: 20 motif batik
-- **Training Data**: 17,000 images
+- **Model**: MobileNetV2 (TFLite)
+- **Classes**: 42 motif batik Indonesia
+- **Input Size**: 224x224 RGB
 
 ## 🚀 Quick Start
 
@@ -23,11 +32,11 @@ venv\Scripts\activate  # Windows
 pip install -r requirements.txt
 ```
 
-### 2. Download Model Files
+### 2. Model Files
 
-Download model files dari Google Drive dan letakkan di folder `models/`:
-- `batik_knn_model_95acc.pkl`
-- `batik_classes.pkl`
+Model files sudah tersedia di folder `models/`:
+- `batik_model.tflite`
+- `batik_classes_mobilenet_ultimate.json`
 - `batik_model_metadata.pkl`
 
 ```
