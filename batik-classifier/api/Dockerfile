@@ -17,19 +17,21 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application files
+COPY main.py .
 COPY app.py .
+COPY batik_model.tflite .
+COPY batik_labels_v2.json .
 COPY models/ models/
 
-# Expose port
-EXPOSE 5000
+# Expose port (HF Spaces expects 7860)
+EXPOSE 7860
 
 # Set environment variables
-ENV FLASK_APP=app.py
 ENV PYTHONUNBUFFERED=1
 
-# Health check
+# Health check (port 7860 for HF Spaces)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-  CMD python -c "import requests; requests.get('http://localhost:5000/health')"
+  CMD python -c "from urllib.request import urlopen; urlopen('http://localhost:7860/health', timeout=5)"
 
-# Run with gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "--timeout", "120", "app:app"]
+# Run FastAPI with uvicorn on port 7860
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7860"]

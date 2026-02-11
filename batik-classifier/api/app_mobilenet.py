@@ -1,8 +1,11 @@
 import os
 import json
 import numpy as np
-# Using ai-edge-litert (Google's new TFLite runtime)
-from ai_edge_litert.interpreter import Interpreter
+# Using standard TensorFlow Lite interpreter
+try:
+    from tensorflow.lite import Interpreter
+except ImportError:
+    from tflite_runtime.interpreter import Interpreter
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -77,16 +80,30 @@ except Exception as e:
 
 # --- PREPROCESSING ---
 def prepare_image(image, target_size=(224, 224)):
+    """
+    Preprocess image to match Google Colab training exactly:
+    - Resize to 224x224
+    - Convert to RGB
+    - Convert to float32
+    - Normalize using x/127.5 - 1.0 (range -1 to 1)
+    """
+    # Ensure RGB format
     if image.mode != "RGB":
         image = image.convert("RGB")
+    
+    # Resize to exact target size
     image = image.resize(target_size)
+    
+    # Convert to numpy array with float32 dtype
     img_array = np.array(image, dtype=np.float32) 
     
-    # Normalisasi (Pastikan saat training kamu juga dibagi 255.0)
-    img_array = img_array / 255.0
+    # Apply exact normalization used in Google Colab: x/127.5 - 1.0
+    # This converts 0-255 range to -1 to 1 range
+    img_array = img_array / 127.5 - 1.0
     
-    # Tambah dimensi batch
+    # Add batch dimension
     img_array = np.expand_dims(img_array, axis=0)
+    
     return img_array
 
 @app.route('/', methods=['GET'])
