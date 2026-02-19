@@ -14,14 +14,19 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 BASE_DIR = Path(__file__).parent
 MODEL_CANDIDATES = [
+    BASE_DIR / "batik_camera_robust_v2 tta.tflite",
     BASE_DIR / "batik_model.tflite",
     BASE_DIR / "models" / "batik_model.tflite",
 ]
 LABEL_CANDIDATES = [
+    BASE_DIR / "batik_labels_v2 (1).json",
     BASE_DIR / "batik_labels_v2.json",
     BASE_DIR / "models" / "batik_labels_v2.json",
     BASE_DIR / "models" / "batik_classes_mobilenet_ultimate.json",
 ]
+
+# Minimum confidence threshold untuk dianggap sebagai batik (60%)
+MIN_CONFIDENCE_THRESHOLD = 0.60
 
 
 def _resolve_first_existing(paths: List[Path]) -> Path:
@@ -139,8 +144,21 @@ def run_inference(image: Image.Image) -> dict:
         for idx in top_indices
     ]
 
+    # Cek apakah confidence cukup tinggi untuk dianggap batik
+    if confidence < MIN_CONFIDENCE_THRESHOLD:
+        return {
+            "success": True,
+            "is_batik": False,
+            "prediction": "Bukan Batik",
+            "confidence": confidence,
+            "percentage": f"{confidence:.2%}",
+            "message": f"Gambar ini kemungkinan BUKAN batik. Confidence ({confidence:.2%}) dibawah threshold minimum ({MIN_CONFIDENCE_THRESHOLD:.0%}).",
+            "top_5_predictions": top_5,
+        }
+
     return {
         "success": True,
+        "is_batik": True,
         "prediction": predicted_label,
         "confidence": confidence,
         "percentage": f"{confidence:.2%}",

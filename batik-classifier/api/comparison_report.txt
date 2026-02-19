@@ -1,0 +1,43 @@
+COMPREHENSIVE MODEL COMPARISON REPORT
+================================================================================
+
+1. OVERALL ACCURACY
+--------------------------------------------------------------------------------
+                Model  Accuracy       Method    Time
+                   V1     92.23       Single       -
+                   V2     95.94       Single       -
+                   V3     94.49       Single       -
+      V2+V3\n(No TTA)     96.50     Ensemble ~10 min
+V2+V3+TTA\n(Ensemble)     96.04 Ensemble+TTA  58 min
+
+2. PROBLEM CLASSES (<95% accuracy)
+--------------------------------------------------------------------------------
+                  Class  Ensemble_Accuracy
+           batik-ciamis              85.29
+          batik-keraton              86.00
+            batik-celup              89.00
+             batik-bali              89.00
+           batik-ceplok              89.13
+        batik-gentongan              89.58
+          batik-garutan              89.62
+           batik-betawi              90.82
+       batik-ikat_celup              91.04
+      batik-solo_parang              91.54
+         batik-priangan              92.00
+            batik-sekar              93.62
+            batik-sogan              94.00
+        batik-sidoluhur              94.00
+       batik-pekalongan              94.00
+batik-yogyakarta_kawung              94.40
+
+3. GAP ANALYSIS
+--------------------------------------------------------------------------------
+Current accuracy:  96.04%
+Target:            99.00%
+Gap:               2.96%
+Images to fix:     ~177
+
+4. RECOMMENDATION
+--------------------------------------------------------------------------------
+Train V4 specialized model for problem classes.
+Expected final accuracy with V2+V3+V4+TTA: 98.5-99.5%

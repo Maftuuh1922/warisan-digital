@@ -24,13 +24,18 @@ CORS(app)
 
 # --- KONFIGURASI ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-# Pastikan path ini sesuai struktur folder kamu
-MODEL_PATH = os.path.join(BASE_DIR, 'models', 'batik_model.tflite') 
-CLASSES_PATH = os.path.join(BASE_DIR, 'models', 'batik_classes_mobilenet_ultimate.json')
+# Model V2 - More Robust with TTA
+MODEL_PATH = os.path.join(BASE_DIR, 'batik_camera_robust_v2 tta.tflite') 
+CLASSES_PATH = os.path.join(BASE_DIR, 'batik_labels_v2 (1).json')
+
+# Minimum confidence threshold untuk dianggap sebagai batik (60%)
+# Jika confidence dibawah ini, akan ditolak sebagai "Bukan Batik"
+MIN_CONFIDENCE_THRESHOLD = 0.35
 
 print("==================================================")
 print("🚀 MEMULAI BATIK CLASSIFIER (TFLITE ENGINE V2)")
-print("⚡ Mode: ai-edge-litert Runtime (38 Batik Classes)")
+print("⚡ Mode: Camera Robust V2 + TTA (38 Batik Classes)")
+print(f"⚠️  Min Confidence Threshold: {MIN_CONFIDENCE_THRESHOLD:.0%}")
 print("==================================================")
 
 # --- 1. LOAD MODEL TFLITE ---
@@ -164,8 +169,21 @@ def predict():
             for idx in top_5_indices
         ]
         
+        # 6. Cek apakah confidence cukup tinggi untuk dianggap batik
+        if confidence < MIN_CONFIDENCE_THRESHOLD:
+            return jsonify({
+                "success": True,
+                "is_batik": False,
+                "prediction": "Bukan Batik",
+                "confidence": confidence,
+                "percentage": f"{confidence:.2%}",
+                "message": f"Gambar ini kemungkinan BUKAN batik. Confidence ({confidence:.2%}) dibawah threshold minimum ({MIN_CONFIDENCE_THRESHOLD:.0%}).",
+                "top_5_predictions": top_5_predictions
+            })
+        
         return jsonify({
             "success": True,
+            "is_batik": True,
             "prediction": predicted_label,
             "confidence": confidence,
             "percentage": f"{confidence:.2%}",
