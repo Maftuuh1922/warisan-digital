@@ -1,0 +1,8 @@
+- *Project:* BatikLens 
+          - *Component:* ⚙️ Backend (API & AI Model)
+          - *Update:* ${{ env.COMMIT_MSG }}
+          - *API Endpoint:* [Link API Kamu]
+
+          ⚠️ *Note:*
+          1. Update pada sistem klasifikasi motif (MobileNetV2).
+          2. Any bug please report into Group - DO NOT PM Admin.
