@@ -21,18 +21,33 @@ jobs:
 
       - name: Get Commit Info & Set Time
         run: |
-          echo "COMMIT_MSG=$(git log -1 --pretty=format:'%s')"                    >> $GITHUB_ENV
-          echo "COMMIT_AUTHOR=$(git log -1 --pretty=format:'%an')"                >> $GITHUB_ENV
-          echo "COMMIT_EMAIL=$(git log -1 --pretty=format:'%ae')"                 >> $GITHUB_ENV
-          echo "CURRENT_TIME=$(TZ='Asia/Jakarta' date +'%H:%M - %d/%m/%Y')"       >> $GITHUB_ENV
-          echo "SHORT_SHA=$(git rev-parse --short HEAD)"                           >> $GITHUB_ENV
-          echo "TOTAL_COMMITS=$(git rev-list --count HEAD)"                        >> $GITHUB_ENV
-          echo "FILES_CHANGED=$(git diff --name-only HEAD~1 HEAD | wc -l | tr -d ' ')" >> $GITHUB_ENV
-          echo "FILES_LIST<<EOF"                                                   >> $GITHUB_ENV
-          git diff --name-only HEAD~1 HEAD | head -10 | sed 's/^/  • /'           >> $GITHUB_ENV
-          echo "EOF"                                                               >> $GITHUB_ENV
-          echo "LINES_ADDED=$(git diff --stat HEAD~1 HEAD | tail -1 | grep -oP '\d+ insertion' | grep -oP '\d+' || echo '0')"   >> $GITHUB_ENV
-          echo "LINES_DELETED=$(git diff --stat HEAD~1 HEAD | tail -1 | grep -oP '\d+ deletion' | grep -oP '\d+' || echo '0')"  >> $GITHUB_ENV
+          echo "COMMIT_MSG=$(git log -1 --pretty=format:'%s')"              >> $GITHUB_ENV
+          echo "COMMIT_AUTHOR=$(git log -1 --pretty=format:'%an')"          >> $GITHUB_ENV
+          echo "CURRENT_TIME=$(TZ='Asia/Jakarta' date +'%H:%M - %d/%m/%Y')" >> $GITHUB_ENV
+          echo "SHORT_SHA=$(git rev-parse --short HEAD)"                    >> $GITHUB_ENV
+          echo "TOTAL_COMMITS=$(git rev-list --count HEAD)"                 >> $GITHUB_ENV
+
+          # Safe check: apakah ada commit sebelumnya (bukan initial commit)
+          if git rev-parse --verify HEAD~1 > /dev/null 2>&1; then
+            FILES_CHANGED=$(git diff --name-only HEAD~1 HEAD | wc -l | tr -d ' ')
+            FILES_LIST=$(git diff --name-only HEAD~1 HEAD | head -10 | sed 's/^/  • /' || echo "  • (tidak ada perubahan)")
+            LINES_ADDED=$(git diff --stat HEAD~1 HEAD | tail -1 | grep -oP '\d+ insertion' | grep -oP '\d+' || echo "0")
+            LINES_DELETED=$(git diff --stat HEAD~1 HEAD | tail -1 | grep -oP '\d+ deletion' | grep -oP '\d+' || echo "0")
+          else
+            # Initial commit — tidak ada HEAD~1, pakai diff-tree
+            FILES_CHANGED=$(git diff-tree --no-commit-id -r --name-only HEAD | wc -l | tr -d ' ')
+            FILES_LIST=$(git diff-tree --no-commit-id -r --name-only HEAD | head -10 | sed 's/^/  • /' || echo "  • (initial commit)")
+            LINES_ADDED="N/A"
+            LINES_DELETED="N/A"
+          fi
+
+          echo "FILES_CHANGED=$FILES_CHANGED" >> $GITHUB_ENV
+          echo "LINES_ADDED=$LINES_ADDED"     >> $GITHUB_ENV
+          echo "LINES_DELETED=$LINES_DELETED" >> $GITHUB_ENV
+
+          echo "FILES_LIST<<EOF"              >> $GITHUB_ENV
+          echo "$FILES_LIST"                  >> $GITHUB_ENV
+          echo "EOF"                          >> $GITHUB_ENV
 
       - name: Send Success Notification to Telegram
         run: |
@@ -66,7 +81,7 @@ jobs:
           2\. Pastikan cek Log Console jika ada error saat memanggil API\.
           3\. Bug? Lapor ke Grup — ❌ jangan PM Admin\.
 
-          🔗 [Lihat Repository](https://github.com/${{ github.repository }}) \| [Lihat Commit](https://github.com/${{ github.repository }}/commit/${{ github.sha }}) \| [Action Log](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          🔗 [Repository](https://github.com/${{ github.repository }}) \| [Commit](https://github.com/${{ github.repository }}/commit/${{ github.sha }}) \| [Action Log](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
 
           ━━━━━━━━━━━━━━━━━━━━━━
           _By: Maftuh \& Syabilla_ 🚀"
@@ -83,7 +98,7 @@ jobs:
           MESSAGE="❌ *BUILD FAILED\!*
           ━━━━━━━━━━━━━━━━━━━━━━
           🗂 *Project:* BatikLens — AI Batik Classifier
-          ⚙️ *Component:* Backend \`\(API \& Model AI\)\`
+          ⚙️ *Component:* Backend \`(API \& Model AI)\`
           🌿 *Branch:* \`${{ github.ref_name }}\`
           🔖 *Commit:* [\`${{ env.SHORT_SHA }}\`](https://github.com/${{ github.repository }}/commit/${{ github.sha }})
           🕐 *Time:* ${{ env.CURRENT_TIME }} WIB
