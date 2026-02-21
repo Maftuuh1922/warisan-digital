@@ -1,8 +1,39 @@
-- *Project:* BatikLens 
-          - *Component:* ⚙️ Backend (API & AI Model)
+name: Auto Notification Backend
+
+on:
+  push:
+    branches:
+      - main 
+
+jobs:
+  send-notification:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Get Commit Info & Set Time
+        run: |
+          echo "COMMIT_MSG=$(git log -1 --pretty=format:'%s')" >> $GITHUB_ENV
+          echo "CURRENT_TIME=$(TZ='Asia/Jakarta' date +'%H:%M - %d/%m/%Y')" >> $GITHUB_ENV
+
+      - name: Send to Telegram
+        run: |
+          MESSAGE="🚀 *Build Successfully!*
+          *BuildTime:* ${{ env.CURRENT_TIME }}
+
+          - *Project:* BatikLens (AI Batik Classifier)
+          - *Component:* ⚙️ Backend (API & Model AI)
           - *Update:* ${{ env.COMMIT_MSG }}
-          - *API Endpoint:* [Link API Kamu]
+          - *Repository:* https://github.com/Maftuuh1922/
 
           ⚠️ *Note:*
-          1. Update pada sistem klasifikasi motif (MobileNetV2).
+          1. Update pada sistem klasifikasi (MobileNetV2) atau endpoint API.
           2. Any bug please report into Group - DO NOT PM Admin.
+
+          By: Maftuh & Syabilla"
+
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -d parse_mode="Markdown" \
+            -d text="$MESSAGE"
