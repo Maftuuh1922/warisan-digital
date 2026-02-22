@@ -3,9 +3,15 @@ import json
 import numpy as np
 # Using standard TensorFlow Lite interpreter
 try:
-    from tensorflow.lite import Interpreter
+    from ai_edge_litert.interpreter import Interpreter
+    print("✅ Using AI Edge LiteRT Runtime")
 except ImportError:
-    from tflite_runtime.interpreter import Interpreter
+    try:
+        from tensorflow.lite import Interpreter
+        print("✅ Using TensorFlow Lite Interpreter")
+    except ImportError:
+        from tflite_runtime.interpreter import Interpreter
+        print("✅ Using TFLite Runtime")
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -17,22 +23,26 @@ CORS(app)
 
 # --- KONFIGURASI ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-# Pastikan path ini sesuai struktur folder kamu
-MODEL_PATH = os.path.join(BASE_DIR, 'models', 'batik_model.tflite') 
-CLASSES_PATH = os.path.join(BASE_DIR, 'models', 'batik_classes_mobilenet_ultimate.json')
+# New model and labels based on user request
+MODEL_PATH = os.path.join(BASE_DIR, 'batik_camera_robust_v2 tta.tflite') 
+CLASSES_PATH = os.path.join(BASE_DIR, 'batik_labels_v2.json')
 
 print("==================================================")
-print("🚀 MEMULAI BATIK CLASSIFIER (TFLITE ENGINE V2)")
-print("⚡ Mode: ai-edge-litert Runtime (38 Batik Classes)")
+print("🚀 MEMULAI BATIK CLASSIFIER (LITERT ENGINE V2)")
+print("⚡ Mode: ai-edge-litert (New Robust Model)")
 print("==================================================")
 
 # --- 1. LOAD MODEL TFLITE ---
+if not os.path.exists(MODEL_PATH):
+    # Try alternate path if not found in root
+    MODEL_PATH = os.path.join(BASE_DIR, 'models', 'batik_camera_robust_v2 tta.tflite')
+
 if not os.path.exists(MODEL_PATH):
     print(f"❌ ERROR: File model TFLite tidak ditemukan: {MODEL_PATH}")
     exit()
 
 try:
-    # Using ai-edge-litert Interpreter
+    # Using Interpreter
     interpreter = Interpreter(model_path=MODEL_PATH)
     interpreter.allocate_tensors()
     
@@ -42,7 +52,7 @@ try:
     
     input_shape = input_details[0]['shape'] 
     output_shape = output_details[0]['shape']
-    print(f"✅ Model TFLite V2 berhasil dimuat!")
+    print(f"✅ Model TFLite berhasil dimuat!")
     print(f"📊 Input Shape: {input_shape}, Output Classes: {output_shape[1]}")
 except Exception as e:
     print(f"❌ Gagal load TFLite: {e}")
